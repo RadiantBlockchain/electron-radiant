@@ -154,7 +154,7 @@ cp -fp /usr/lib/x86_64-linux-gnu/libusb-1.0.so "$APPDIR"/usr/lib/x86_64-linux-gn
 cp -f /usr/lib/x86_64-linux-gnu/libxkbcommon-x11.so.0 "$APPDIR"/usr/lib/x86_64-linux-gnu || fail "Could not copy libxkbcommon-x11"
 
 # some distros lack some libxcb libraries (see #2189, #2196)
-cp -f /usr/lib/x86_64-linux-gnu/libxcb-* "$APPDIR"/usr/lib/x86_64-linux-gnu || fail "Could not copy libxkcb"
+cp -f /usr/lib/x86_64-linux-gnu/libxcb* "$APPDIR"/usr/lib/x86_64-linux-gnu || fail "Could not copy libxkcb"
 
 info "Stripping binaries of debug symbols"
 # "-R .note.gnu.build-id" also strips the build id
