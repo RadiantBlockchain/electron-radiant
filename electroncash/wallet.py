@@ -67,7 +67,7 @@ from .blockchain import NULL_HASH_HEX
 
 
 from . import paymentrequest
-from .paymentrequest import InvoiceStore, PR_PAID, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
+from .paymentrequest import InvoiceStore, PR_PAID, PR_UNCONFIRMED, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
 from .contacts import Contacts
 from . import cashacct
 from . import slp
@@ -2352,7 +2352,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             info = self.verified_tx.get(txid)
             if info:
                 tx_height, timestamp, pos = info
-                conf = local_height - tx_height
+                conf = max(local_height - tx_height + 1, 0)
             else:
                 conf = 0
             l.append((conf, v))
@@ -2424,7 +2424,12 @@ class Abstract_Wallet(PrintError, SPVDelegate):
         conf = None
         if amount:
             paid, conf = self.get_payment_status(address, amount)
-            status = PR_PAID if paid else PR_UNPAID
+            if not paid:
+                status = PR_UNPAID
+            elif conf == 0:
+                status = PR_UNCONFIRMED
+            else:
+                status = PR_PAID
             if status == PR_UNPAID and expiration is not None and time.time() > timestamp + expiration:
                 status = PR_EXPIRED
         else:

@@ -60,12 +60,14 @@ PR_UNPAID  = 0
 PR_EXPIRED = 1
 PR_UNKNOWN = 2     # sent but not propagated
 PR_PAID    = 3     # send and propagated
+PR_UNCONFIRMED = 7
 
 pr_tooltips = {
     PR_UNPAID:_('Pending'),
     PR_UNKNOWN:_('Unknown'),
     PR_PAID:_('Paid'),
-    PR_EXPIRED:_('Expired')
+    PR_EXPIRED:_('Expired'),
+    PR_UNCONFIRMED: _('Unconfirmed')
 }
 
 del _
