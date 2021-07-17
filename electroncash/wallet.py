@@ -663,6 +663,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             height, conf, timestamp = self.get_tx_height(tx_hash)
             self.cashacct.add_verified_tx_hook(tx_hash, info, header)
         self.network.trigger_callback('verified2', self, tx_hash, height, conf, timestamp)
+        self._update_request_statuses_touched_by_tx(tx_hash)
 
     def verification_failed(self, tx_hash, reason):
         ''' TODO: Notify gui of this if it keeps happening, try a different
@@ -695,6 +696,8 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             if txs: self.cashacct.undo_verifications_hook(txs)
         if txs:
             self._addr_bal_cache = {}  # this is probably not necessary -- as the receive_history_callback will invalidate bad cache items -- but just to be paranoid we clear the whole balance cache on reorg anyway as a safety measure
+        for tx_hash in txs:
+            self._update_request_statuses_touched_by_tx(tx_hash)    
         return txs
 
     def get_local_height(self):
@@ -1459,6 +1462,12 @@ class Abstract_Wallet(PrintError, SPVDelegate):
     def receive_tx_callback(self, tx_hash, tx, tx_height):
         self.add_transaction(tx_hash, tx)
         self.add_unverified_tx(tx_hash, tx_height)
+        self._update_request_statuses_touched_by_tx(tx_hash)
+
+    def _update_request_statuses_touched_by_tx(self, tx_hash):
+        tx = self.transactions.get(tx_hash)
+        if tx is None:
+            return
         if self.network and self.network.callback_listener_count("payment_received") > 0:
             for _, addr, _ in tx.outputs():
                 status = self.get_request_status(addr)  # returns PR_UNKNOWN quickly if addr has no requests, otherwise returns tuple
