@@ -60,7 +60,7 @@ PR_UNPAID  = 0
 PR_EXPIRED = 1
 PR_UNKNOWN = 2     # sent but not propagated
 PR_PAID    = 3     # send and propagated
-PR_UNCONFIRMED = 7
+PR_UNCONFIRMED = 7 # paid and confirmations = 0 (7 used to match Electrum)
 
 pr_tooltips = {
     PR_UNPAID:_('Pending'),
