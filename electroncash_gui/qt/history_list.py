@@ -161,6 +161,7 @@ class HistoryList(MyTreeWidget):
             if value and value < 0:
                 item.setForeground(3, self.withdrawalBrush)
                 item.setForeground(4, self.withdrawalBrush)
+                item.setForeground(6, self.withdrawalBrush)
             item.setData(0, Qt.UserRole, tx_hash)
             self.addTopLevelItem(item, tx_hash)
             if current_tx == tx_hash:
