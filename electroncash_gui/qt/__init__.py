@@ -761,7 +761,7 @@ class ElectrumGui(QObject, PrintError):
             interval = 10.0*1e3 # do it very soon (in 10 seconds)
         else:
             interval = 4.0*3600.0*1e3 # once every 4 hours (in ms)
-        self.update_checker_timer.start(interval)
+        self.update_checker_timer.start(int(interval))
         self.print_error("Auto update check: interval set to {} seconds".format(interval//1e3))
 
     def _stop_auto_update_timer(self):

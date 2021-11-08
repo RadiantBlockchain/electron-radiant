@@ -867,7 +867,7 @@ class OverlayControlMixin:
         if hasattr(self, 'verticalScrollBar') and self.verticalScrollBar().isVisible():
             scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
             x -= scrollbar_width
-        self.overlay_widget.move(x, y)
+        self.overlay_widget.move(int(x), int(y))
 
     def addWidget(self, widget: QWidget, index: int = None):
         if index is not None:
@@ -1152,7 +1152,7 @@ class RateLimiter(PrintError):
                 self.timer.timeout.connect(self._doIt)
                 #self.timer.destroyed.connect(lambda x=None,qn=self.qn: print(qn,"Timer deallocated"))
                 self.timer.setSingleShot(True)
-                self.timer.start(diff*1e3)
+                self.timer.start(int(diff*1e3))
                 #self.print_error("deferring")
         else:
             # We had a timer active, which means as future call will occur. So return early and let that call happenin the future.
