@@ -44,7 +44,7 @@ from ..simple_config import SimpleConfig
 
 
 # Python 3.10 workaround for stem package which is using collections.Iterable (removed in 3.10)
-if sys.version_info > (3, 10):
+if sys.version_info >= (3, 10):
     if hasattr(stem, '__version__') and version.parse_package_version(stem.__version__)[:2] <= (1, 8):
         import collections.abc
         # monkey-patch collections.Iterable back since stem.control expects to see this name
