@@ -67,7 +67,7 @@ from .blockchain import NULL_HASH_HEX
 
 
 from . import paymentrequest
-from .paymentrequest import InvoiceStore, PR_PAID, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
+from .paymentrequest import InvoiceStore, PR_PAID, PR_UNCONFIRMED, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
 from .contacts import Contacts
 from . import cashacct
 from . import slp
@@ -663,6 +663,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             height, conf, timestamp = self.get_tx_height(tx_hash)
             self.cashacct.add_verified_tx_hook(tx_hash, info, header)
         self.network.trigger_callback('verified2', self, tx_hash, height, conf, timestamp)
+        self._update_request_statuses_touched_by_tx(tx_hash)
 
     def verification_failed(self, tx_hash, reason):
         ''' TODO: Notify gui of this if it keeps happening, try a different
@@ -695,6 +696,8 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             if txs: self.cashacct.undo_verifications_hook(txs)
         if txs:
             self._addr_bal_cache = {}  # this is probably not necessary -- as the receive_history_callback will invalidate bad cache items -- but just to be paranoid we clear the whole balance cache on reorg anyway as a safety measure
+        for tx_hash in txs:
+            self._update_request_statuses_touched_by_tx(tx_hash)    
         return txs
 
     def get_local_height(self):
@@ -1459,6 +1462,12 @@ class Abstract_Wallet(PrintError, SPVDelegate):
     def receive_tx_callback(self, tx_hash, tx, tx_height):
         self.add_transaction(tx_hash, tx)
         self.add_unverified_tx(tx_hash, tx_height)
+        self._update_request_statuses_touched_by_tx(tx_hash)
+
+    def _update_request_statuses_touched_by_tx(self, tx_hash):
+        tx = self.transactions.get(tx_hash)
+        if tx is None:
+            return
         if self.network and self.network.callback_listener_count("payment_received") > 0:
             for _, addr, _ in tx.outputs():
                 status = self.get_request_status(addr)  # returns PR_UNKNOWN quickly if addr has no requests, otherwise returns tuple
@@ -2352,7 +2361,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             info = self.verified_tx.get(txid)
             if info:
                 tx_height, timestamp, pos = info
-                conf = local_height - tx_height
+                conf = max(local_height - tx_height + 1, 0)
             else:
                 conf = 0
             l.append((conf, v))
@@ -2424,7 +2433,12 @@ class Abstract_Wallet(PrintError, SPVDelegate):
         conf = None
         if amount:
             paid, conf = self.get_payment_status(address, amount)
-            status = PR_PAID if paid else PR_UNPAID
+            if not paid:
+                status = PR_UNPAID
+            elif conf == 0:
+                status = PR_UNCONFIRMED
+            else:
+                status = PR_PAID
             if status == PR_UNPAID and expiration is not None and time.time() > timestamp + expiration:
                 status = PR_EXPIRED
         else:

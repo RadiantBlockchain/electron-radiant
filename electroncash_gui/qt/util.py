@@ -27,12 +27,13 @@ else:
 
 dialogs = []
 
-from electroncash.paymentrequest import PR_UNPAID, PR_PAID, PR_EXPIRED
+from electroncash.paymentrequest import PR_UNCONFIRMED, PR_UNPAID, PR_PAID, PR_EXPIRED
 
 pr_icons = {
     PR_UNPAID:":icons/unpaid.svg",
     PR_PAID:":icons/confirmed.svg",
-    PR_EXPIRED:":icons/expired.svg"
+    PR_EXPIRED:":icons/expired.svg",
+    PR_UNCONFIRMED: ":icons/unconfirmed.svg"
 }
 
 def _(message): return message
