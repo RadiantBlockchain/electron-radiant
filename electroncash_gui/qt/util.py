@@ -523,9 +523,12 @@ def filename_field(config, defaultname, select_msg):
     gb.setLayout(vbox)
     b1 = QRadioButton()
     b1.setText(_("CSV"))
-    b1.setChecked(True)
     b2 = QRadioButton()
     b2.setText(_("JSON"))
+    if defaultname.endswith(".json"):
+        b2.setChecked(True)
+    else:
+        b1.setChecked(True)
     vbox.addWidget(b1)
     vbox.addWidget(b2)
 
