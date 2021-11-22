@@ -1480,9 +1480,13 @@ class ElectrumGui(PrintError):
         self.daemon = None
         self.dismiss_downloading_notif()
         utils.cleanup_tmp_dir()
+        wd = wallets.WalletsMgr.wallets_dir()
+        if wd: utils.cleanup_wallet_dir(wd)  # on newer iOS for some reason *.tmp.PID remain..
 
     def start_daemon(self):
         if self.daemon_is_running(): return
+        wd = wallets.WalletsMgr.wallets_dir()
+        if wd: utils.cleanup_wallet_dir(wd)  # on newer iOS for some reason *.tmp.PID remain..
         import electroncash.daemon as ed
         try:
             # Force remove of lock file so the code below cuts to the chase and starts a new daemon without

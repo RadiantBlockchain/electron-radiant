@@ -127,6 +127,30 @@ def cleanup_tmp_dir():
     if tot:
         NSLog("Cleanup Tmp Dir: removed %d/%d files from tmp dir in %f ms",ct,tot,(time.time()-t0)*1e3)
 
+def cleanup_wallet_dir(wallet_dir: str):
+    t0 = time.time()
+    ct = tot = 0
+    import glob
+    import re
+    if os.path.isdir(wallet_dir):
+        it = glob.iglob(os.path.join(wallet_dir,'*.tmp.*'))
+        for f in it:
+            parts = f.split('.')
+            if (len(parts) >= 3 and re.match(r'\d+', parts[-1]) and parts[-2] == "tmp"
+                and os.path.exists('.'.join(parts[0:-2]))):
+                tot += 1
+                try:
+                    os.remove(f)
+                    ct += 1
+                except Exception as e:
+                    NSLog("Cleanup Wallet Dir: failed to remove wallet file: %s -- exception: %s",
+                          f, str(e))
+
+    if tot:
+        NSLog("Cleanup Wallet Dir: removed %d/%d tmp files from wallet dir in %f ms "
+              "(%d wallets left untouched)",
+              ct, tot, (time.time() - t0) * 1e3, wallet_ct)
+
 def ios_version_string() -> str:
     return "%s %s %s (%s)"%ios_version_tuple_full()
 
