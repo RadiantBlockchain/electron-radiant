@@ -516,7 +516,8 @@ def show_alert(vc : ObjCInstance, # the viewcontroller to present the alert view
     vc.presentViewController_animated_completion_(alert,animated,onCompletion)
     if localRunLoop:
         while not got_callback:
-            NSRunLoop.currentRunLoop().runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.1))
+            crl = send_message(ObjCClass("NSRunLoop"), "currentRunLoop")
+            ObjCInstance(crl).runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.1))
         return None
     return alert
 
@@ -611,7 +612,8 @@ def call_later(timeout : float, func : Callable, *args) -> ObjCInstance:
             func(*args)
             if t: t.invalidate()
         timer = NSTimer.timerWithTimeInterval_repeats_block_(timeout, False, OnTimer)
-        NSRunLoop.mainRunLoop().addTimer_forMode_(timer, NSDefaultRunLoopMode)
+        mrl = send_message(ObjCClass("NSRunLoop"), "mainRunLoop")
+        ObjCInstance(mrl).addTimer_forMode_(timer, NSDefaultRunLoopMode)
     return timer
 
 ###
