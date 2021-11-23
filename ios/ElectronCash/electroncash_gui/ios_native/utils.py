@@ -1463,7 +1463,7 @@ class UTILSKBCBHandler(NSObject):
         entry = _kbcb_dict.get(self.handle, None)
         if not entry: return
         rect = py_from_ns(sender.userInfo)[str(UIKeyboardFrameEndUserInfoKey)].CGRectValue
-        window = entry.view.window()
+        window = boilerplate.get_window(entry.view)
         if window: rect = entry.view.convertRect_fromView_(rect, window)
         if entry.onWillShow: entry.onWillShow(rect)
     @objc_method
@@ -1471,7 +1471,7 @@ class UTILSKBCBHandler(NSObject):
         entry = _kbcb_dict.get(self.handle, None)
         if not entry: return
         rect = py_from_ns(sender.userInfo)[str(UIKeyboardFrameEndUserInfoKey)].CGRectValue
-        window = entry.view.window()
+        window = boilerplate.get_window(entry.view)
         if window: rect = entry.view.convertRect_fromView_(rect, window)
         if entry.onDidShow: entry.onDidShow(rect)
 
@@ -1519,8 +1519,8 @@ def register_keyboard_autoscroll(sv : UIScrollView) -> int:
         return None
     def kbShow(r : CGRect) -> None:
         resp = UIResponder.currentFirstResponder()
-        window = sv.window()
-        if resp and isinstance(resp, UIView) and window and resp.window():
+        window = boilerplate.get_window(sv)
+        if resp and isinstance(resp, UIView) and window and boilerplate.get_window(resp):
             #r = sv.convertRect_toView_(r, window)
             visible = sv.convertRect_toView_(sv.bounds, window)
             visible.size.height -= r.size.height
@@ -1785,10 +1785,10 @@ class boilerplate:
     # Layout constraint stuff.. programatically
     @staticmethod
     def layout_peg_view_to_superview(view : UIView) -> None:
-        if not view.superview():
+        if not boilerplate.get_superview(view):
             NSLog("Warning: layout_peg_view_to_superview -- passed-in view lacks a superview!")
             return
-        sv = view.superview()
+        sv = boilerplate.get_superview(view)
         sv.addConstraint_(NSLayoutConstraint.constraintWithItem_attribute_relatedBy_toItem_attribute_multiplier_constant_(
             sv, NSLayoutAttributeCenterX, NSLayoutRelationEqual, view, NSLayoutAttributeCenterX, 1.0, 0.0 ))
         sv.addConstraint_(NSLayoutConstraint.constraintWithItem_attribute_relatedBy_toItem_attribute_multiplier_constant_(
@@ -1807,6 +1807,25 @@ class boilerplate:
             blurView.frame = parent.frame
             parent.addSubview_(blurView)
         return blurView
+
+    @staticmethod
+    def get_superview(view: UIView) -> ObjCInstance:
+        """This used to be a method now it's a property, so we need to use send_message
+        in case on some older iOS it's still a method"""
+        ret = send_message(view, "superview")
+        if ret:
+            ret = ObjCInstance(ret)
+        return ret
+
+    @staticmethod
+    def get_window(view: UIView) -> ObjCInstance:
+        """This used to be a method now it's a property, so we need to use send_message
+        in case on some older iOS it's still a method"""
+        ret = send_message(view, "window")
+        if ret:
+            ret = ObjCInstance(ret)
+        return ret
+
 
 ###
 ### iOS13 Status Bar Workaround stuff
