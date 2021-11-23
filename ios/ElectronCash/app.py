@@ -5,7 +5,7 @@
 # MIT License
 #
 import os
-from electroncash_gui.ios_native.monkeypatches import MonkeyPatches
+from electroncash_gui.ios_native.monkeypatches import MonkeyPatches, PatchedSimpleConfig
 from electroncash.util import set_verbosity
 from electroncash_gui.ios_native import ElectrumGui
 from electroncash_gui.ios_native.utils import call_later, get_user_dir, cleanup_tmp_dir, is_debug_build, NSLogSuppress, NSLog
@@ -34,7 +34,7 @@ def main():
 
     MonkeyPatches.patch()
 
-    config = SimpleConfig(config_options, read_user_dir_function = get_user_dir)
+    config = PatchedSimpleConfig(config_options, read_user_dir_function=get_user_dir)
 
     gui = ElectrumGui(config)
     call_later(0.010, gui.main) # this is required for the activity indicator to actually animate. Switch to a direct call if not using activity indicator on Splash2
