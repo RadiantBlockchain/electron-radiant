@@ -21,7 +21,6 @@ def main():
             'cmd': 'gui',
             'gui': 'ios_native',
             'cwd': os.getcwd(),
-            'whitelist_servers_only' : True,  # on iOS we force only the whitelist ('preferred') servers only for now as a security measure
             'testnet': 'EC_TESTNET' in os.environ,  # You can set the env when testing using Xcode "Scheme" editor
     }
 

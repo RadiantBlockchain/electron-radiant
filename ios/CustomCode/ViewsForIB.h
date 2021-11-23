@@ -20,6 +20,8 @@
 @end
 
 @interface CustomNavController : UINavigationController
+@property (class, nonatomic, copy, nullable) UIColor *topNavBGColor;
+@property (class, nonatomic, copy, nullable) UIColor *topNavTextColor;
 @end
 
 @interface AddrConvBase : CustomViewController

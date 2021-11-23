@@ -281,6 +281,10 @@ class ElectrumGui(PrintError):
         utils.NSLog("GUI instance created, splash screen 2 presented")
 
     def createAndShowUI(self):
+        # First we set-up the iOS 15+ work-around colors..
+        CustomNavController.topNavBGColor = utils.uicolor_custom('nav')
+        CustomNavController.topNavTextColor = UIColor.whiteColor
+
         self.helper = GuiHelper.alloc().init()
 
         self.tabController = MyTabBarController.alloc().init().autorelease()
