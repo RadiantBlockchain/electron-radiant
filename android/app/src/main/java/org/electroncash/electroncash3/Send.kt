@@ -234,7 +234,7 @@ class SendDialog : TaskLauncherDialog<Unit>() {
         val fee = tx?.callAttr("get_fee")?.toInt()
         val spb = if (fee != null) fee / tx.callAttr("estimated_size").toInt()
                   else feeSpb
-        var feeLabel = getString(R.string.sat_byte, spb)
+        var feeLabel = getString(R.string.sats_per, spb)
         if (fee != null) {
             feeLabel += " (${ltr(formatSatoshisAndUnit(fee.toLong()))})"
         }
