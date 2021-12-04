@@ -311,7 +311,7 @@ class InstallWizard(QDialog, MessageBoxMixin, BaseWizard):
             QWidget().setLayout(prior_layout)
         self.main_widget.setLayout(layout)
         self.back_button.setEnabled(True)
-        self.next_button.setEnabled(next_enabled)
+        self.next_button.setEnabled(bool(next_enabled))
         if next_enabled:
             self.next_button.setFocus()
         self.main_widget.setVisible(True)
@@ -492,7 +492,7 @@ class InstallWizard(QDialog, MessageBoxMixin, BaseWizard):
         line = QLineEdit()
         line.setText(default)
         def f(text):
-            self.next_button.setEnabled(test(text))
+            self.next_button.setEnabled(bool(test(text)))
         line.textEdited.connect(f)
         vbox.addWidget(line)
         vbox.addWidget(WWLabel(warning))
@@ -514,7 +514,7 @@ class InstallWizard(QDialog, MessageBoxMixin, BaseWizard):
         line = QLineEdit()
         line.setText(default)
         def f(text):
-            self.next_button.setEnabled(test(text))
+            self.next_button.setEnabled(bool(test(text)))
         line.textEdited.connect(f)
         vbox.addWidget(line)
         vbox.addWidget(WWLabel(warning))

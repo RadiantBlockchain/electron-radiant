@@ -741,7 +741,7 @@ class NetworkChoiceLayout(QObject, PrintError):
             # Disallow changing the proxy settings when Tor is in use
             b = False
         for w in [self.proxy_mode, self.proxy_host, self.proxy_port, self.proxy_user, self.proxy_password]:
-            w.setEnabled(b)
+            w.setEnabled(bool(b))
 
     def get_set_server_flags(self):
         return (self.config.is_modifiable('server'),
@@ -990,7 +990,7 @@ class NetworkChoiceLayout(QObject, PrintError):
         self.network.tor_controller.set_socks_port(socks_port)
 
     def on_custom_port_cb_click(self, b):
-        self.tor_socks_port.setEnabled(b)
+        self.tor_socks_port.setEnabled(bool(b))
         if not b:
             self.tor_socks_port.setText("0")
             self.set_tor_socks_port()

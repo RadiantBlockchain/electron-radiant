@@ -474,7 +474,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.password_menu.setEnabled(self.wallet.can_change_password())
         self.import_privkey_menu.setVisible(self.wallet.can_import_privkey())
         self.import_address_menu.setVisible(self.wallet.can_import_address())
-        self.export_menu.setEnabled(self.wallet.can_export())
+        self.export_menu.setEnabled(bool(self.wallet.can_export()))
 
     def warn_if_watching_only(self):
         if self.wallet.is_watching_only():
@@ -583,7 +583,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             def loader(k):
                 return lambda: gui_object.new_window(k)
             self.recently_visited_menu.addAction(b, loader(k)).setShortcut(QKeySequence("Ctrl+%d"%(i+1)))
-        self.recently_visited_menu.setEnabled(len(recent))
+        self.recently_visited_menu.setEnabled(bool(len(recent)))
 
     def get_wallet_folder(self):
         return self.gui_object.get_wallet_folder()
@@ -4397,7 +4397,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                 if self.wallet.use_change != usechange_result:
                     self.wallet.use_change = usechange_result
                     self.wallet.storage.put('use_change', self.wallet.use_change)
-                    multiple_cb.setEnabled(self.wallet.use_change)
+                    multiple_cb.setEnabled(bool(self.wallet.use_change))
             usechange_cb.stateChanged.connect(on_usechange)
         per_wallet_tx_widgets.append((usechange_cb, None))
 
@@ -4409,9 +4409,9 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             if isinstance(self.force_use_single_change_addr, str):
                 multiple_cb.setToolTip(self.force_use_single_change_addr)
             else:
-                multuple_cb.setToolTip('')
+                multiple_cb.setToolTip('')
         else:
-            multiple_cb.setEnabled(self.wallet.use_change)
+            multiple_cb.setEnabled(bool(self.wallet.use_change))
             multiple_cb.setToolTip('\n'.join([
                 _('In some cases, use up to 3 change addresses in order to break '
                   'up large coin amounts and obfuscate the recipient address.'),
@@ -4844,10 +4844,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                 cb = QCheckBox(descr['fullname'])
                 weakCb = Weak.ref(cb)
                 plugin_is_loaded = p is not None
-                cb_enabled = (not plugin_is_loaded and plugins.is_internal_plugin_available(name, self.wallet)
-                              or plugin_is_loaded and p.can_user_disable())
+                cb_enabled = bool(not plugin_is_loaded and plugins.is_internal_plugin_available(name, self.wallet)
+                                  or plugin_is_loaded and p.can_user_disable())
                 cb.setEnabled(cb_enabled)
-                cb.setChecked(plugin_is_loaded and p.is_enabled())
+                cb.setChecked(bool(plugin_is_loaded and p.is_enabled()))
                 grid.addWidget(cb, i, 0)
                 enable_settings_widget(p, name, i)
                 cb.clicked.connect(partial(do_toggle, weakCb, name, i))

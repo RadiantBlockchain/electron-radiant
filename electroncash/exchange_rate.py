@@ -383,7 +383,7 @@ class FxThread(ThreadJob):
         return not networks.net.TESTNET
 
     def is_enabled(self):
-        return self.is_supported() and self.config.get('use_exchange_rate', DEFAULT_ENABLED)
+        return bool(self.is_supported() and self.config.get('use_exchange_rate', DEFAULT_ENABLED))
 
     def set_enabled(self, b):
         return self.config.set_key('use_exchange_rate', bool(b))
