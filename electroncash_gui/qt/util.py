@@ -5,6 +5,7 @@ import platform
 import queue
 import threading
 import os
+import weakref
 import webbrowser
 from collections import namedtuple
 from functools import partial, wraps
@@ -1336,6 +1337,7 @@ def webopen(url: str):
     else:
         webbrowser.open(url)
 
+
 class TextBrowserKeyboardFocusFilter(QTextBrowser):
     """
     This is a QTextBrowser that only enables keyboard text selection when the focus reason is
@@ -1357,6 +1359,29 @@ class TextBrowserKeyboardFocusFilter(QTextBrowser):
     def keyPressEvent(self, e: QKeyEvent):
         self.setTextInteractionFlags(self.textInteractionFlags() | Qt.TextSelectableByKeyboard)
         super().keyPressEvent(e)
+
+
+class OnDestroyedMixin:
+    """A mixin class designed to be used with any QObject. It will call the on_destroyed method (which can be
+    overridden), and it offers the property is_destroyed.  Used in network_dialog.py. """
+    def __init__(self):
+        assert isinstance(self, QObject)
+        self.is_destroyed = False
+        weak_self = weakref.ref(self)
+
+        def handler(obj):
+            strong_self = weak_self()
+            if strong_self:
+                strong_self.on_destroyed(obj)
+
+        self.destroyed.connect(lambda obj: handler(obj))
+
+    def on_destroyed(self, obj):
+        if self.is_destroyed:
+            return
+        self.is_destroyed = True
+        print_error(f"OnDestroyedMixin, object destroyed: {self!r}")
+
 
 if __name__ == "__main__":
     app = QApplication([])
