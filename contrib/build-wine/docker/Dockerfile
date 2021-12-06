@@ -23,7 +23,8 @@ RUN echo deb ${UBUNTU_MIRROR} bionic main restricted universe multiverse > /etc/
     apt-get update -q && \
     apt-get install -qy \
         gnupg2=2.2.4-1ubuntu1.3 \
-        software-properties-common=0.96.24.32.14 && \
+        software-properties-common=0.96.24.32.14 \
+        python3-software-properties=0.96.24.32.14 && \
     echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 /tmp/winehq.key" | sha256sum -c - && \
     apt-key add /tmp/winehq.key && \
     echo "6e4ab6a3731a1f66dbdbe036968ccea64da0c423d312e35b9f8209bb1c82a0a7 /tmp/opensuse.key" | sha256sum -c - && \
