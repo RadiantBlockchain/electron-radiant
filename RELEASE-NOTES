@@ -1210,3 +1210,23 @@ and there is no warning message.
 - Remove bitcoin.com block explorer #2328 (Jonas Lundqvist)
 - CashFusion: Clarify status of coins on fused address #2329 (Jonas Lundqvist)
 - Add more accurate exchange rate for ARS #2326 (Santiago Chiabotto)
+
+# RELEASE NOTES 4.2.6
+
+- History list - Made fiat balance changes also appear in red (scinklja)
+- Implement unconfirmed invoices status (MrNaif2018)
+- Add ability to forget config on exit (MrNaif2018)
+- Fire payment_received event on confirmation too (MrNaif2018)
+- macOS: Set minimum system version to 10.14.0 in Info.plist  (cculianu)
+- Add native introspection opcodes (upcoming May 2022 additions to
+  script) #2339 (cculianu)
+- CashFusion: Default fusion depth, if checked, to 3 (cculianu)
+- Trivial fix: Allow plugins to use qt/util.py filename_field (acidsploit)
+- Added electrum.bitcoinverde.org to server list (Josh Green)
+- Fixups for iOS 15+ (cculianu)
+- Android: Remove pycparser from requirements-android.txt (Malcolm Smith)
+- Android: improve string conversion script, and make it detect some errors
+  (Malcolm Smith)
+- Fixups for Python 3.10 (cculianu)
+- add kisternet v3 onion to testnet  (jkister)
+- Qt: Add cleanup code to avoid random segfault on exit (cculianu)
