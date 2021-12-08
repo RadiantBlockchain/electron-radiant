@@ -1230,3 +1230,4 @@ and there is no warning message.
 - Fixups for Python 3.10 (cculianu)
 - add kisternet v3 onion to testnet  (jkister)
 - Qt: Add cleanup code to avoid random segfault on exit (cculianu)
+- AppImage: Fixed to work on Debian and Tails #2245  (Axel Gembe)
