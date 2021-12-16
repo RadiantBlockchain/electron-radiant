@@ -34,7 +34,7 @@ import ecdsa
 import pyaes
 
 from enum import IntEnum
-from typing import Tuple
+from typing import Tuple, Union
 
 from . import networks
 from .util import (bfh, bh2u, to_string, print_error, InvalidPassword,
@@ -358,35 +358,49 @@ def var_int(i):
         return "ff"+int_to_hex(i,8)
 
 
-def op_push(i):
-    assert i >= 0
-    if i < 0x4c:
-        return int_to_hex(i)
-    elif i <= 0xff:
-        return '4c' + int_to_hex(i)
-    elif i <= 0xffff:
-        return '4d' + int_to_hex(i, 2)
+def op_push_bytes(data_len: int) -> bytes:
+    assert isinstance(data_len, int) and data_len >= 0
+    if data_len < OpCodes.OP_PUSHDATA1:
+        return data_len.to_bytes(byteorder='little', length=1)
+    elif data_len <= 0xff:
+        return bytes([OpCodes.OP_PUSHDATA1]) + data_len.to_bytes(byteorder='little', length=1)
+    elif data_len <= 0xffff:
+        return bytes([OpCodes.OP_PUSHDATA2]) + data_len.to_bytes(byteorder='little', length=2)
     else:
-        return '4e' + int_to_hex(i, 4)
+        return bytes([OpCodes.OP_PUSHDATA4]) + data_len.to_bytes(byteorder='little', length=4)
 
 
-def push_script(data: str) -> str:
+def op_push(i: int) -> str:
+    """Hex version of above"""
+    return op_push_bytes(i).hex()
+
+
+def push_script_bytes(data: Union[bytearray, bytes], *, minimal=True) -> bytes:
     """Returns pushed data to the script, automatically respecting BIP62 "minimal encoding" rules.
-    Input data is hex, returns hex."""
-    data = bytes.fromhex(data)
+    If `minimal` is False, will not use BIP62 and will just push using OP_PUSHDATA*, etc (this
+    non-BIP62 way of pushing is the convention in OP_RETURN scripts such as CashAccounts usually).
+    Input data is bytes, returns bytes."""
+    assert isinstance(data, (bytes, bytearray))
     data_len = len(data)
 
-    # BIP62 has bizarre rules for minimal pushes of length 0 or 1
-    # See: https://en.bitcoin.it/wiki/BIP_0062#Push_operators
-    # And also: https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/master/src/script/script.cpp#L300
-    if data_len == 0 or data_len == 1 and data[0] == 0:
-        return bytes([OpCodes.OP_0]).hex()
-    elif data_len == 1 and 1 <= data[0] <= 16:
-        return bytes([OpCodes.OP_1 + (data[0] - 1)]).hex()
-    elif data_len == 1 and data[0] == 0x81:
-        return bytes([OpCodes.OP_1NEGATE]).hex()
+    if minimal:
+        # BIP62 has bizarre rules for minimal pushes of length 0 or 1
+        # See: https://en.bitcoin.it/wiki/BIP_0062#Push_operators
+        # And also: https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/master/src/script/script.cpp#L300
+        if data_len == 0 or data_len == 1 and data[0] == 0:
+            return bytes([OpCodes.OP_0])
+        elif data_len == 1 and 1 <= data[0] <= 16:
+            return bytes([OpCodes.OP_1 + (data[0] - 1)])
+        elif data_len == 1 and data[0] == 0x81:
+            return bytes([OpCodes.OP_1NEGATE])
 
-    return op_push(data_len) + data.hex()
+    return op_push_bytes(data_len) + data
+
+
+def push_script(data: str, *, minimal=True) -> str:
+    """Returns pushed data to the script, automatically respecting BIP62 "minimal encoding" rules.
+    Input data is hex, returns hex."""
+    return push_script_bytes(bytes.fromhex(data), minimal=minimal).hex()
 
 
 def sha256(x):

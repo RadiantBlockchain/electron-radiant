@@ -194,6 +194,23 @@ class Test_bitcoin(unittest.TestCase):
         self.assertEqual(push_script(255 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('ff' + 255 * '42')))
         self.assertEqual(push_script(256 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0001' + 256 * '42')))
         self.assertEqual(push_script(520 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0802' + 520 * '42')))
+        # We also optionally support pushing non-minimally (for OP_RETURN "scripts")
+        self.assertEqual(push_script('', minimal=False), bh2u(bytes([OpCodes.OP_0])))
+        self.assertEqual(push_script('07', minimal=False), '0107')
+        self.assertEqual(push_script('10', minimal=False), '0110')
+        self.assertEqual(push_script('81', minimal=False), '0181')
+        self.assertEqual(push_script('11', minimal=False), '0111')
+        self.assertEqual(push_script(75 * '42', minimal=False), '4b' + 75 * '42')
+        self.assertEqual(push_script(76 * '42', minimal=False),
+                         bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('4c' + 76 * '42')))
+        self.assertEqual(push_script(100 * '42', minimal=False),
+                         bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('64' + 100 * '42')))
+        self.assertEqual(push_script(255 * '42', minimal=False),
+                         bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('ff' + 255 * '42')))
+        self.assertEqual(push_script(256 * '42', minimal=False),
+                         bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0001' + 256 * '42')))
+        self.assertEqual(push_script(520 * '42', minimal=False),
+                         bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0802' + 520 * '42')))
 
 
 class Test_bitcoin_testnet(unittest.TestCase):

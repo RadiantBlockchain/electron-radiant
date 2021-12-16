@@ -23,12 +23,13 @@
 
 # Many of the functions in this file are copied from ElectrumX
 
-from collections import namedtuple
 import hashlib
 import struct
+from collections import namedtuple
+from typing import Union
 
 from . import cashaddr, networks
-from .bitcoin import EC_KEY, is_minikey, minikey_to_private_key, SCRIPT_TYPES, OpCodes
+from .bitcoin import EC_KEY, is_minikey, minikey_to_private_key, SCRIPT_TYPES, OpCodes, push_script_bytes
 from .util import cachedproperty, inv_dict
 
 _sha256 = hashlib.sha256
@@ -277,7 +278,7 @@ class ScriptOutput(namedtuple("ScriptAddressTuple", "script")):
                     friendlystring = data.hex()
 
                 parts.append(lookup(op) + " " + friendlystring)
-            else: # isinstance(op, int):
+            else:  # isinstance(op, int):
                 parts.append(lookup(op))
         return ', '.join(parts)
 
@@ -619,26 +620,17 @@ class Script:
             PublicKey.validate(pubkey)   # Can be compressed or not
         # See https://bitcoin.org/en/developer-guide
         # 2 of 3 is: OP_2 pubkey1 pubkey2 pubkey3 OP_3 OP_CHECKMULTISIG
-        return (bytes([OpCodes.OP_1 + m - 1])
+        return (cls.push_data(bytes([m]))
                 + b''.join(cls.push_data(pubkey) for pubkey in pubkeys)
-                + bytes([OpCodes.OP_1 + n - 1, OpCodes.OP_CHECKMULTISIG]))
+                + cls.push_data(bytes([n])) + bytes([OpCodes.OP_CHECKMULTISIG]))
 
     @classmethod
-    def push_data(cls, data):
-        '''Returns the OpCodes to push the data on the stack.'''
-        assert isinstance(data, (bytes, bytearray))
-
-        n = len(data)
-        if n < OpCodes.OP_PUSHDATA1:
-            return bytes([n]) + data
-        if n < 256:
-            return bytes([OpCodes.OP_PUSHDATA1, n]) + data
-        if n < 65536:
-            return bytes([OpCodes.OP_PUSHDATA2]) + struct.pack('<H', n) + data
-        return bytes([OpCodes.OP_PUSHDATA4]) + struct.pack('<I', n) + data
+    def push_data(cls, data: Union[bytes, bytearray], *, minimal=True) -> bytes:
+        """Returns the OpCodes to push the data on the stack, plus the payload."""
+        return push_script_bytes(data, minimal=minimal)
 
     @classmethod
-    def get_ops(cls, script):
+    def get_ops(cls, script, *, synthesize_minimal_data=True):
         ops = []
 
         # The unpacks or script[n] below throw on truncated scripts
@@ -660,7 +652,7 @@ class Script:
                         # Two-byte length, then data
                         dlen, = struct.unpack('<H', script[n: n + 2])
                         n += 2
-                    else: # op == OpCodes.OP_PUSHDATA4
+                    else:  # op == OpCodes.OP_PUSHDATA4
                         # Four-byte length, then data
                         dlen, = struct.unpack('<I', script[n: n + 4])
                         n += 4
@@ -668,6 +660,14 @@ class Script:
                         raise IndexError
                     data = script[n:n + dlen]
                     n += dlen
+                elif synthesize_minimal_data and OpCodes.OP_1 <= op <= OpCodes.OP_16:
+                    # BIP62: 1-byte pushes containing just 0x1 to 0x10 are encoded as single op-codes
+                    # We synthesize the data that was originally pushed.
+                    data = bytes([1 + (op - OpCodes.OP_1)])
+                elif synthesize_minimal_data and op == OpCodes.OP_1NEGATE:
+                    # BIP62: 1-byte pushes containing just 0x81 are encoded as single op-codes
+                    # We synthesize the data that was originally pushed.
+                    data = bytes([0x81])
                 else:
                     data = None
 
