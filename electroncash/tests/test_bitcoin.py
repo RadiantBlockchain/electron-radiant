@@ -8,11 +8,11 @@ from ..bitcoin import (
     generator_secp256k1, point_to_ser, public_key_to_p2pkh, EC_KEY, bip32_root,
     bip32_public_derivation, bip32_private_derivation, pw_encode, pw_decode,
     Hash, public_key_from_private_key, address_from_private_key, is_private_key,
-    xpub_from_xprv, var_int, op_push, regenerate_key, verify_message,
+    xpub_from_xprv, var_int, op_push, push_script, regenerate_key, verify_message,
     deserialize_privkey, serialize_privkey, is_minikey, is_compressed, is_xpub,
-    xpub_type, is_xprv, is_bip32_derivation, Bip38Key)
+    xpub_type, is_xprv, is_bip32_derivation, Bip38Key, OpCodes)
 from ..networks import set_mainnet, set_testnet
-from ..util import bfh
+from ..util import bfh, bh2u
 
 try:
     import ecdsa
@@ -180,6 +180,20 @@ class Test_bitcoin(unittest.TestCase):
         self.assertEqual(op_push(0xffff), '4dffff')
         self.assertEqual(op_push(0x10000), '4e00000100')
         self.assertEqual(op_push(0x12345678), '4e78563412')
+
+    def test_push_script(self):
+        # https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#push-operators
+        self.assertEqual(push_script(''), bh2u(bytes([OpCodes.OP_0])))
+        self.assertEqual(push_script('07'), bh2u(bytes([OpCodes.OP_7])))
+        self.assertEqual(push_script('10'), bh2u(bytes([OpCodes.OP_16])))
+        self.assertEqual(push_script('81'), bh2u(bytes([OpCodes.OP_1NEGATE])))
+        self.assertEqual(push_script('11'), '0111')
+        self.assertEqual(push_script(75 * '42'), '4b' + 75 * '42')
+        self.assertEqual(push_script(76 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('4c' + 76 * '42')))
+        self.assertEqual(push_script(100 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('64' + 100 * '42')))
+        self.assertEqual(push_script(255 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA1]) + bfh('ff' + 255 * '42')))
+        self.assertEqual(push_script(256 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0001' + 256 * '42')))
+        self.assertEqual(push_script(520 * '42'), bh2u(bytes([OpCodes.OP_PUSHDATA2]) + bfh('0802' + 520 * '42')))
 
 
 class Test_bitcoin_testnet(unittest.TestCase):
