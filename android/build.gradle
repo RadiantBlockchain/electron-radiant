@@ -4,7 +4,7 @@ buildscript {
     ext.kotlinVersion = '1.3.41'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven {
             // This repository is for Electron Cash only: other apps should use
             // https://chaquo.com/maven .
@@ -24,7 +24,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
