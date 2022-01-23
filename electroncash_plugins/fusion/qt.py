@@ -1429,7 +1429,7 @@ class WalletSettingsDialog(WindowModalDialog):
                 else:
                     self.conf.selector = None
                     return self.refresh()
-                sel_count = COIN_FRACTION_FUDGE_FACTOR / max(sel_fraction, 0.001)
+                sel_count = round(COIN_FRACTION_FUDGE_FACTOR / max(sel_fraction, 0.001))
                 self.amt_selector_size.setAmount(round(sel_size))
                 self.sb_selector_fraction.setValue(max(min(sel_fraction, 1.0), 0.001) * 100.0)
                 self.sb_selector_count.setValue(sel_count)
