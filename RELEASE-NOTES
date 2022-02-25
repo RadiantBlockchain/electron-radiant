@@ -1231,3 +1231,18 @@ and there is no warning message.
 - add kisternet v3 onion to testnet  (jkister)
 - Qt: Add cleanup code to avoid random segfault on exit (cculianu)
 - AppImage: Fixed to work on Debian and Tails #2245  (Axel Gembe)
+
+# RELEASE NOTES 4.2.7
+
+- Fix for off-by-one error in op_push in bitcoin.py (cculianu)
+- Fix bitcoin.py push_script to implement BIP62 correctly  (cculianu)
+- backport: blockchain.py: bugfixes re bits_to_target and target_to_bits
+  (SomberNight)
+- Update copyright year to 2022 (sandakersmann)
+- Fix to allow fusions to continue while keeping dust protection
+  (Emergent Reasons)
+- Android: replace deprecated jcenter repository with mavenCentral (mhsmith)
+- Remove ADDRTYPE_*_BITPAY (Jonas Lundqvist)
+- Add new option: "Retire unused change addresses" #2408 (cculianu)
+- Relax qdarkstyle version bound #2396 (MrNaif2018)
+- Add support for Satochip hardware wallet v0.12 (Toporin)
