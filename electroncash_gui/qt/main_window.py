@@ -43,7 +43,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from electroncash import keystore, get_config
-from electroncash.address import Address, ScriptOutput
+from electroncash.address import Address, AddressError, ScriptOutput
 from electroncash.bitcoin import COIN, TYPE_ADDRESS, TYPE_SCRIPT
 from electroncash import networks
 from electroncash.plugins import run_hook
@@ -73,6 +73,7 @@ from .transaction_dialog import show_transaction
 from .fee_slider import FeeSlider
 from .popup_widget import ShowPopupLabel, KillPopupLabel
 from . import cashacctqt
+from . import lnsqt
 from .util import *
 
 try:
@@ -157,6 +158,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.require_fee_update = False
         self.cashaddr_toggled_signal = self.gui_object.cashaddr_toggled_signal  # alias for backwards compatibility for plugins -- this signal used to live in each window and has since been refactored to gui-object where it belongs (since it's really an app-global setting)
         self.force_use_single_change_addr = None  # this is set by the CashShuffle plugin to a single string that will go into the tool-tip explaining why this preference option is disabled (see self.settings_dialog)
+        self._update_lns_timer = QTimer(self)
+        self._update_lns_timer.timeout.connect(self.update_lns_contacts)
+        self._update_lns_timer.setInterval(600_000)  # 10 min update timer for LNS contacts
+        self._update_lns_timer.setSingleShot(False)
         self.tl_windows = []
         self.tx_external_keypairs = {}
         self._tx_dialogs = Weak.Set()
@@ -257,10 +262,14 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         if event.isAccepted() and self._first_shown:
             self._first_shown = False
             weakSelf = Weak.ref(self)
-            # do this immediately after this event handler finishes -- noop on everything but linux
+            # do this immediately after this event handler finishes
             def callback():
                 strongSelf = weakSelf()
                 if strongSelf:
+                    if strongSelf.network:
+                        strongSelf.update_lns_contacts()
+                        strongSelf._update_lns_timer.start()
+                    # noop on everything but linux
                     strongSelf.gui_object.lin_win_maybe_show_highdpi_caveat_msg(strongSelf)
             QTimer.singleShot(0, callback)
 
@@ -695,6 +704,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             icon = QIcon(":icons/cashacct-logo.png")
         tools_menu.addAction(icon, _("Lookup &Cash Account..."), self.lookup_cash_account_dialog, QKeySequence("Ctrl+L"))
         tools_menu.addAction(icon, _("&Register Cash Account..."), lambda: self.register_new_cash_account(addr='pick'), QKeySequence("Ctrl+G"))
+        icon = QIcon(":icons/lns.png")
+        tools_menu.addAction(icon, _("Lookup &LNS Name..."), self.lookup_lns_dialog, QKeySequence("Ctrl+Shift+L"))
         run_hook('init_menubar_tools', self, tools_menu)
 
         help_menu = menubar.addMenu(_("&Help"))
@@ -1526,6 +1537,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                 "<li> Bitcoin Cash <b>Address</b> <b>★</b>"
                 "<li> Bitcoin Legacy <b>Address</b> <b>★</b>"
                 "<li> <b>Cash Account</b> <b>★</b> e.g. <i>satoshi#123</i>"
+                "<li> <b>LNS Name</b> <b>★</b> e.g. <i>satoshi.bch</i>"
                 "<li> <b>Contact name</b> <b>★</b> from the Contacts tab"
                 "<li> <b>OpenAlias</b> e.g. <i>satoshi@domain.com</i>"
                 "</ul><br>"
@@ -1914,13 +1926,23 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                 self.print_error(label, "not found")
                 # could not get verified contact, don't offer it as a completion
                 return None
+        elif _type.startswith('lns'):  # picks up lns and the lns_W pseudo-contacts
+            mod_type = 'lns'
+            info = self.wallet.lns.get_verified(label)
+            if info:
+                if _type == 'lns_W':
+                    mine_str = ' [' + _('Mine') + '] '
+            else:
+                self.print_error(label, "not found")
+                # could not get verified contact, don't offer it as a completion
+                return None
         elif _type == 'openalias':
             return contact.address
-        return label + emoji_str + '  ' + mine_str + '<' + contact.address + '>' if mod_type in ('address', 'cashacct') else None
+        return label + emoji_str + '  ' + mine_str + '<' + contact.address + '>' if mod_type in ('address', 'cashacct', 'lns') else None
 
     def update_completions(self):
         l = []
-        for contact in self.contact_list.get_full_contacts(include_pseudo=True):
+        for contact in self.contact_list.get_full_contacts():
             s = self.get_contact_payto(contact)
             if s is not None: l.append(s)
         l.sort(key=lambda x: x.lower())  # case-insensitive sort
@@ -2667,6 +2689,26 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         On failure throws up an error window and returns None.'''
         return cashacctqt.resolve_cashacct(self, name)
 
+    def resolve_lns(self, name):
+        ''' Throws up a WaitingDialog while it resolves an LNS Name.
+
+        Goes out to network, verifies all tx's.
+
+        Returns: a tuple of: (Info, Minimally_Encoded_Formatted_AccountName)
+
+        Argument `name` should be a Cash Account name string of the form:
+
+          name#number.123
+          name#number
+          name#number.;  etc
+
+        If the result would be ambigious, that is considered an error, so enough
+        of the account name#number.collision_hash needs to be specified to
+        unambiguously resolve the Cash Account.
+
+        On failure throws up an error window and returns None.'''
+        return lnsqt.resolve_lns(self, name)
+
     def set_contact(self, label, address, typ='address', replace=None) -> Contact:
         ''' Returns a reference to the newly inserted Contact object.
         replace is optional and if specified, replace an existing contact,
@@ -2676,10 +2718,18 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         that case the returned value would still be a valid Contact.
 
         Returns None on failure.'''
-        assert typ in ('address', 'cashacct')
+        assert typ in ('address', 'cashacct', 'lns')
         contact = None
         if typ == 'cashacct':
             tup = self.resolve_cashacct(label)  # this displays an error message for us
+            if not tup:
+                self.contact_list.update() # Displays original
+                return
+            info, label = tup
+            address = info.address.to_ui_string()
+            contact = Contact(name=label, address=address, type=typ)
+        elif typ == 'lns':
+            tup = self.resolve_lns(label)  # this displays an error message for us
             if not tup:
                 self.contact_list.update() # Displays original
                 return
@@ -2739,6 +2789,42 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.update_completions()
 
         run_hook('delete_contacts2', removed_entries)
+
+    def update_lns_contacts(self):
+        """Resolves the new addresses of lns contacts and updates them"""
+        if not self.network:
+            return  # Do nothing if in offline mode
+        contacts = self.contacts
+        lns_contacts = [contact for contact in contacts.get_all() if contact.type == 'lns']
+        lns_names = [contact.name for contact in lns_contacts]
+        if not lns_names:
+            return
+
+        def thread_func():
+            infos = self.wallet.lns.resolve_verify(lns_names)
+            if not infos:
+                return
+            updated = []
+            for contact in lns_contacts:
+                info = None
+                for ii in infos:
+                    try:
+                        if contact.name == ii.name and Address.from_string(contact.address) != ii.address:
+                            info = ii
+                            break
+                    except AddressError:
+                        pass
+                if info:
+                    updated.append((contact, Contact(info.name, info.address.to_ui_string(), 'lns')))
+            if updated:
+                def in_main_thread():
+                    for old, new in updated:
+                        contacts.replace(old, new)
+                    self.contact_list.do_update_signal.emit()
+                util.do_in_main_thread(in_main_thread)
+
+        t = threading.Thread(name=f"update_lns_contacts", target=thread_func, daemon=True)
+        t.start()
 
     def show_invoice(self, key):
         pr = self.invoices.get(key)
@@ -2986,6 +3072,11 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
     def lookup_cash_account_dialog(self):
         blurb = "<br><br>" + _('Enter a string of the form <b>name#<i>number</i></b>')
         cashacctqt.lookup_cash_account_dialog(self, self.wallet, blurb=blurb,
+                                              add_to_contacts_button = True, pay_to_button = True)
+
+    def lookup_lns_dialog(self):
+        blurb = "<br><br>" + _('Enter a search term or a string of the form <b>satoshi.bch</b>')
+        lnsqt.lookup_lns_dialog(self, self.wallet, blurb=blurb,
                                               add_to_contacts_button = True, pay_to_button = True)
 
     def show_master_public_keys(self):

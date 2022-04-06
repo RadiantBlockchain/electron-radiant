@@ -40,6 +40,7 @@ from electroncash import web
 
 from . import util
 from . import cashacctqt
+from . import lnsqt
 
 RE_ALIAS = r'^(.*?)\s*<\s*([0-9A-Za-z:]{26,})\s*>$'
 RE_AMT = r'^.*\s*,\s*([0-9,.]*)\s*$'
@@ -83,10 +84,12 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         self.update_size()
         self.payto_address = None
         self._ca_busy = False
+        self._lns_busy = False
         self._original_style_sheet = self.styleSheet() or ''
 
         self.previous_payto = ''
-        self.preivous_ca_could_not_verify = set()
+        self.previous_ca_could_not_verify = set()
+        self.previous_lns_could_not_verify = set()
 
         if sys.platform in ('darwin',):
             # See issue #1411 -- on *some* macOS systems, clearing the
@@ -325,6 +328,8 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         if self.is_pr:
             return
         key = str(self.toPlainText())
+        if not '@' in key:
+            return
         key = key.strip()  # strip whitespaces
         if key == self.previous_payto:
             # unchanged, restore previous state, abort early.
@@ -383,6 +388,7 @@ class PayToEdit(PrintError, ScanQRTextEdit):
     def _resolve_cash_accounts(self, skip_verif=False):
         ''' This should be called if not hasFocus(). Will run through the
         text in the payto and rewrite any verified cash accounts we find. '''
+        has_ca = False
         wallet = self.win.wallet
         lines = self.lines()
         lines_orig = lines.copy()
@@ -402,6 +408,7 @@ class PayToEdit(PrintError, ScanQRTextEdit):
             if not ca_tup:
                 # not a cashaccount
                 continue
+            has_ca = True
             # strip the '<' piece... in case user edited and stale <address> is present
             m = RX_AMT.match(line)
             if m:
@@ -417,7 +424,7 @@ class PayToEdit(PrintError, ScanQRTextEdit):
                 # user specified cash account not found.. potentially kick off verify
                 need_verif.add(ca_tup[1])
         if (need_verif and not skip_verif
-                and need_verif != self.preivous_ca_could_not_verify  # this makes it so we don't keep retrying when verif fails due to bad cashacct spec
+                and need_verif != self.previous_ca_could_not_verify  # this makes it so we don't keep retrying when verif fails due to bad cashacct spec
                 and wallet.network and wallet.network.is_connected()):
             # Note: verify_multiple_blocks here throws up a waiting dialog
             # and spawns a local event loop, so this call path may block for
@@ -436,13 +443,79 @@ class PayToEdit(PrintError, ScanQRTextEdit):
                 self._resolve_cash_accounts(skip_verif=True)
                 return # above call takes care of rewriting self, so just return early
 
-        self.preivous_ca_could_not_verify = need_verif
+        self.previous_ca_could_not_verify = need_verif
 
         if lines_orig != lines:
             # set text only if we changed something since setText kicks off more
             # parsing elsewehre in this class on textChanged
             self.setText('\n'.join(lines))
+        return has_ca
 
+    def _resolve_lns_names(self, skip_verif=False):
+        ''' This should be called if not hasFocus(). Will run through the
+        text in the payto and rewrite any verified LNS Names we find. '''
+        has_lns = False
+        wallet = self.win.wallet
+        lines = self.lines()
+        lines_orig = lines.copy()
+        need_verif = set()
+        for n, line in enumerate(lines):
+            line = line.strip()
+            parts = self._rx_split.split(line, maxsplit=1)
+            if not parts:
+                # nothing there..
+                continue
+            lns_string = parts[0]
+            while lns_string.endswith(','):
+                # string trailing ',', if any
+                lns_string = lns_string[:-1]
+                parts.insert(1, ',') # push stripped ',' into the 'parts' list
+            lns_tup = wallet.lns.parse_string(lns_string)
+            if not lns_tup or not lns_tup[1]:
+                # not an LNS Name ending with .bch
+                continue
+            has_lns = True
+            # strip the '<' piece... in case user edited and stale <address> is present
+            m = RX_AMT.match(line)
+            if m:
+                parts = [lns_string, ',', m.group(1)]  # strip down to just lns_string + , + amount
+            else:
+                parts = [lns_string]  # strip down to JUST lns_string
+            lns_info = wallet.lns.get_verified(lns_string)
+            if lns_info:
+                resolved = wallet.lns.fmt_info(lns_info) + " <" + lns_info.address.to_ui_string() + ">"
+                lines[n] = line = resolved + " ".join(parts[1:])  # rewrite line, putting the resolved LNS Name + <address> at the beginning, amount at the end (if any)
+            else:
+                lines[n] = line = " ".join(parts)  # rewrite line, possibly stripping <> address here
+                # user specified cash account not found.. potentially kick off verify
+                need_verif.add(lns_tup[0])
+        if (need_verif and not skip_verif
+                and need_verif != self.previous_lns_could_not_verify  # this makes it so we don't keep retrying when verif fails due to bad cashacct spec
+                and wallet.network and wallet.network.is_connected()):
+            # Note: verify_multiple_names here throws up a waiting dialog
+            # and spawns a local event loop, so this call path may block for
+            # up to 10 seconds. The waiting dialog is however cancellable with
+            # the ESC key, so it's not too bad UX-wise. Just bear in mind that
+            # the local event loop can cause this code path to execute again
+            # if not careful (see the self._lns_busy flag documented inside
+            # function `resolve` below).
+            res = lnsqt.verify_multiple_names(list(need_verif), self.win, wallet)
+            if res is None:
+                # user abort
+                return
+            elif res > 0:
+                # got some verifications...
+                # call self again, to redo the payto edit with the verified pieces
+                self._resolve_lns_names(skip_verif=True)
+                return  # above call takes care of rewriting self, so just return early
+
+        self.previous_lns_could_not_verify = need_verif
+
+        if lines_orig != lines:
+            # set text only if we changed something since setText kicks off more
+            # parsing elsewehre in this class on textChanged
+            self.setText('\n'.join(lines))
+        return has_lns
 
     def resolve(self, *, force_if_has_focus = False):
         ''' This is called by the main window periodically from a timer. See
@@ -471,7 +544,10 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         it is since it requires the progremmer to spend considerable time
         reading this code to modfy/enhance it.  But we will work with that
         we have for now. -Calin '''
-        if self._ca_busy:
+        if not len(self.toPlainText().strip()):
+            return
+
+        if self._ca_busy or self._lns_busy:
             # See the comment at the end of this function about why this flag is
             # here.
             return
@@ -492,6 +568,14 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         # multiple "Verifying, please wait... " dialogs on top of each other.
         try:
             self._ca_busy = True
-            self._resolve_cash_accounts()
+            if self._resolve_cash_accounts():
+                return
         finally:
             self._ca_busy = False
+
+        try:
+            self._lns_busy = True
+            if self._resolve_lns_names():
+                return
+        finally:
+            self._lns_busy = False
