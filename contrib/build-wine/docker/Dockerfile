@@ -1,59 +1,121 @@
-FROM ubuntu:18.04@sha256:2aeed98f2fa91c365730dc5d70d18e95e8d53ad4f1bbf4269c3bb625060383f0
+FROM ubuntu:21.10@sha256:74fd1c59ac5d29527f56a9ac22753571ce4c40a301d083a56d963bde98a7dfdc
 
 ARG UBUNTU_MIRROR=http://archive.ubuntu.com/ubuntu/
 
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
+
+ENV UBUNTUDIST=impish
+
+# This prevents questions during package installations
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST} main restricted universe multiverse > /etc/apt/sources.list && \
+    echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST}-updates main restricted universe multiverse >> /etc/apt/sources.list && \
+    echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST}-backports main restricted universe multiverse >> /etc/apt/sources.list && \
+    echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST}-security main restricted universe multiverse >> /etc/apt/sources.list && \
+    dpkg --add-architecture i386 && \
+    apt-get update -q && \
+    apt-get install -qy \
+        gnupg2=2.2.20-1ubuntu4 \
+        ca-certificates=20210119ubuntu1 \
+        wget=1.21-1ubuntu3 \
+        git=1:2.32.0-1ubuntu1 \
+        p7zip-full=16.02+dfsg-8 \
+        make=4.3-4ubuntu1 \
+        autotools-dev=20180224.1+nmu1 \
+        autoconf=2.69-14 \
+        libtool=2.4.6-15 \
+        gettext=0.21-4ubuntu3 \
+        autopoint=0.21-4ubuntu3 \
+        mingw-w64=8.0.0-1 \
+        mingw-w64-tools=8.0.0-1 \
+        win-iconv-mingw-w64-dev=0.0.8-4
 
 # Official WineHQ signing key
 # See https://wiki.winehq.org/Ubuntu
 # From https://dl.winehq.org/wine-builds/winehq.key
 COPY winehq.key /tmp
 
-# Ubuntu 18.04 lacks libfaudio0 needed for Wine 6
-# See https://forum.winehq.org/viewtopic.php?f=8&t=32192
-# See also https://askubuntu.com/a/1205596
-# From https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key
-COPY opensuse.key /tmp
+ENV WINEDIST=devel
+ENV WINEVERSION=7.2~${UBUNTUDIST}-1
 
-RUN echo deb ${UBUNTU_MIRROR} bionic main restricted universe multiverse > /etc/apt/sources.list && \
-    echo deb ${UBUNTU_MIRROR} bionic-updates main restricted universe multiverse >> /etc/apt/sources.list && \
-    echo deb ${UBUNTU_MIRROR} bionic-backports main restricted universe multiverse >> /etc/apt/sources.list && \
-    echo deb ${UBUNTU_MIRROR} bionic-security main restricted universe multiverse >> /etc/apt/sources.list && \
-    dpkg --add-architecture i386 && \
-    apt-get update -q && \
-    apt-get install -qy \
-        gnupg2=2.2.4-1ubuntu1.3 \
-        software-properties-common=0.96.24.32.14 \
-        python3-software-properties=0.96.24.32.14 && \
-    echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 /tmp/winehq.key" | sha256sum -c - && \
+RUN echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 /tmp/winehq.key" | sha256sum -c - && \
     apt-key add /tmp/winehq.key && \
-    echo "6e4ab6a3731a1f66dbdbe036968ccea64da0c423d312e35b9f8209bb1c82a0a7 /tmp/opensuse.key" | sha256sum -c - && \
-    apt-key add /tmp/opensuse.key && \
-    apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
-    apt-add-repository 'deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./' && \
+    echo deb https://dl.winehq.org/wine-builds/ubuntu/ ${UBUNTUDIST} main >> /etc/apt/sources.list && \
     apt-get update -q && \
     apt-get install -qy \
-        wget=1.19.4-1ubuntu2.2 \
-        git=1:2.17.1-1ubuntu0.9 \
-        p7zip-full=16.02+dfsg-6 \
-        make=4.1-9.1ubuntu1 \
-        autotools-dev=20180224.1 \
-        autoconf=2.69-11 \
-        libtool=2.4.6-2 \
-        gettext=0.19.8.1-6ubuntu0.3 \
-        autopoint=0.19.8.1-6ubuntu0.3 \
-        mingw-w64=5.0.3-1 \
-        mingw-w64-tools=5.0.3-1 \
-        win-iconv-mingw-w64-dev=0.0.8-2 \
-        wine-stable-amd64:amd64=6.0.0~bionic-1 \
-        wine-stable-i386:i386=6.0.0~bionic-1 \
-        wine-stable:amd64=6.0.0~bionic-1 \
-        winehq-stable:amd64=6.0.0~bionic-1 && \
-    rm -rf /var/lib/apt/lists/* && \
+        wine-${WINEDIST}-amd64:amd64=${WINEVERSION} \
+        wine-${WINEDIST}-i386:i386=${WINEVERSION} \
+        wine-${WINEDIST}:amd64=${WINEVERSION} \
+        winehq-${WINEDIST}:amd64=${WINEVERSION} \
+        # cabextract is needed for winetricks to install the .NET framework
+        cabextract=1.9-3 \
+        # xvfb is needed to launch the Visual Studio installer
+        xvfb=2:1.20.13-1ubuntu1.1 \
+        # winbind is needed for the Visual Studio installer and cl.exe PDB generation
+        winbind=2:4.13.17~dfsg-0ubuntu0.21.10.1
+
+RUN rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
+
+RUN wget -q -O /tmp/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/094a4d8552587fca12a101b6a1104833dad4043f/src/winetricks && \
+    chmod +x /tmp/winetricks && \
+    echo "662738eb3863282b7438bedba0c17c5e1b47f1d4b0f8a929ff7ac48a3ace13b2 /tmp/winetricks" | sha256sum -c -
 
 ARG USER_ID
 ARG GROUP_ID
 
-RUN mkdir -p /homedir/wine64/drive_c/electroncash ; chown -R ${USER_ID}:${GROUP_ID} /homedir && ls -al /homedir
+ENV HOME=/homedir
+ENV WINEARCH=win32
+ENV WINEPREFIX=${HOME}/wine
+ENV WINEDEBUG=-all
+
+RUN mkdir -p ${WINEPREFIX}/drive_c/electroncash ; chown -R ${USER_ID}:${GROUP_ID} ${HOME}
+
+# Make our UID/GID have an actual user name, this is needed so wineboot creates the right folders and
+# the Visual Studio installer does't fail in SHGetKnownFolderPath with error 0x80070003 (ERROR_PATH_NOT_FOUND).
+RUN echo "user:x:${USER_ID}:${GROUP_ID}::${HOME}:/bin/sh" >> /etc/passwd
+USER ${USER_ID}:${GROUP_ID}
+
+WORKDIR ${HOME}
+
+# wineboot needs to run after the user is added to /etc/passwd, otherwise it will assume the username is "wine"
+RUN wineboot && \
+    /tmp/winetricks --optout -q dotnet472 && \
+    # Wait for the wine server to shutdown, needs to be done after wineboot to ensure the installation is good
+    wineserver -w
+
+# DBUS_FATAL_WARNINGS=0 is needed because we don't have dbus in the container and Wine calls
+# dbus_connection_send_with_reply_and_block with a NULL connection. The dbus client libraries are set to abort by
+# default unless this variable is set.
+ENV DBUS_FATAL_WARNINGS=0
+
+RUN wget https://aka.ms/vs/16/release/installer -O /tmp/vs_installer.opc && \
+    # As of 2022-04-08 the checksum has changed and is not the same as in winetricks anymore
+    echo "3f3938428c645139a8151803ca62719569eea619ef2f4a8a12f7b64503df6c81 /tmp/vs_installer.opc" | sha256sum -c - && \
+    7z x -oopc /tmp/vs_installer.opc && rm /tmp/vs_installer.opc && \
+    xvfb-run wine opc/Contents/vs_installer.exe install --quiet \
+        --channelId VisualStudio.16.Release --channelUri "https://aka.ms/vs/16/release/channel" \
+        --productId Microsoft.VisualStudio.Product.BuildTools \
+        --nocache --installWhileDownloading \
+        --add "Microsoft.VisualStudio.Workload.VCTools" \
+        # We could use --includeRecommended like winetricks does but to save time and space we only include what we actually need
+        --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" \
+        --add "Microsoft.VisualStudio.Component.Windows10SDK.19041" && \
+    # vswhere.exe needs to be installed in this path so setuptools can detect the VS installation
+    mkdir "${WINEPREFIX}"/"drive_c/Program Files/Microsoft Visual Studio/Installer" && \
+    mv opc/Contents/vswhere.exe "${WINEPREFIX}"/"drive_c/Program Files/Microsoft Visual Studio/Installer" && \
+    rm -rf opc && wineserver -w
+
+# Patch to make vcvarsall.bat work
+# "C:\Program Files\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x86 && set
+# python -c "from setuptools import msvc; print(msvc.msvc14_get_vc_env('x86'))"
+# Caused by wrong delayed expansion in Wine, see https://bugs.winehq.org/show_bug.cgi?id=38289
+RUN sed -i -e 's/!result:~0,3!/10./g' "${WINEPREFIX}"/"drive_c/Program Files/Microsoft Visual Studio/2019/BuildTools/Common7/Tools/vsdevcmd/core/winsdk.bat"
+
+# Clean up some left overs only needed for the Visual Studio installer
+USER 0:0
+RUN apt-get remove cabextract xvfb -y && \
+    apt-get autoremove -y
+USER ${USER_ID}:${GROUP_ID}
