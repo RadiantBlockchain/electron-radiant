@@ -112,6 +112,10 @@ EOF
         info "Installing build requirements from requirements-build-wine.txt ..."
         $PYTHON -m pip install --no-deps --no-warn-script-location -r $here/../deterministic-build/requirements-build-wine.txt || fail "Failed to install build requirements"
 
+        info "Patching pip vendored distlib to produce deterministic zip archives ..."
+        sed -i -e 's/\('\''__main__\.py'\''\)/ZipInfo(\1)/g' -e 's/\(from .compat import .*\)/from zipfile import ZipInfo\n\1/g' \
+            "$WINEPREFIX"/drive_c/python$PYTHON_VERSION/Lib/site-packages/pip/_vendor/distlib/scripts.py
+
         info "Compiling PyInstaller bootloader with AntiVirus False-Positive Protection™ ..."
         mkdir pyinstaller
         (
