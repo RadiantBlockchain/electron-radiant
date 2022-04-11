@@ -119,3 +119,8 @@ USER 0:0
 RUN apt-get remove cabextract xvfb -y && \
     apt-get autoremove -y
 USER ${USER_ID}:${GROUP_ID}
+
+# Build a wrapper for MSVC's link.exe that always passes the /Brepro flag to ensure builds are reproducible.
+COPY wrapper.cpp ${WINEPREFIX}/drive_c
+COPY wrapper_install.bat ${WINEPREFIX}/drive_c
+RUN wine C:/wrapper_install.bat
