@@ -3835,7 +3835,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                                          decimal_point=self.decimal_point,
                                          fee_calc_timeout=timeout,
                                          download_inputs=download_inputs,
-                                         progress_callback=update_prog)
+                                         progress_callback=update_prog,
+                                         receives_before_sends=True)
         success = False
         def on_success(history):
             nonlocal success
