@@ -1,8 +1,9 @@
-FROM ubuntu:18.04@sha256:5f4bdc3467537cbbe563e80db2c3ec95d548a9145d64453b06939c4592d67b6d
+FROM ubuntu:20.04@sha256:9d42d0e3e57bc067d10a75ee33bdd1a5298e95e5fc3c5d1fce98b455cb879249
 
-ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8 TZ=America/New_York
 
 RUN apt-get update -q && \
+    DEBIAN_FRONTEND=noninteractive \
     apt-get install -qy \
         git \
         wget \
@@ -14,7 +15,7 @@ RUN apt-get update -q && \
         xz-utils \
         libssl-dev \
         zlib1g-dev \
-        libffi6 \
+        libffi7 \
         libffi-dev \
         libncurses5-dev \
         libsqlite3-dev \
