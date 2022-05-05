@@ -1246,3 +1246,20 @@ and there is no warning message.
 - Add new option: "Retire unused change addresses" #2408 (cculianu)
 - Relax qdarkstyle version bound #2396 (MrNaif2018)
 - Add support for Satochip hardware wallet v0.12 (Toporin)
+
+# RELEASE NOTES 4.2.8
+
+- Patch for Satochip v0.12 support #2410 (Toporin)
+- Add smartBCH LNS name lookup support #2414 (mainnet-pat, cculianu)
+- Build: Update the Wine build docker container to use the MSVC compiler
+  (Axel Gembe)
+- Misc build fixups related to the addition of web3 support (cculianu)
+- wine-build: add workaround for installing pyinstaller (SomberNight)
+- Build: Patch pip vendored distlib to produce deterministic zip archives
+  (Axel Gembe)
+- Build: Install a MSVC linker wrapper to make PE timestamps deterministic
+  (Axel Gembe, cculianu)
+- CashFusion: Add 10BCH fusion tier (SahidMiller)
+- CTOR workaround: Always display receives before sends for the same block
+  (cculianu)
+
