@@ -135,6 +135,10 @@ python3 -m pip install -I --user -r contrib/deterministic-build/requirements-pip
 python3 -m pip install -I --user -r contrib/osx/requirements-osx-build.txt \
     || fail "Could not install osx build requirements"
 
+# Create the build directory in /tmp
+rm  -rf $BUILDDIR > /dev/null 2>&1
+mkdir -p $BUILDDIR
+
 info "Building PyInstaller."
 PYINSTALLER_REPO="https://github.com/pyinstaller/pyinstaller.git"
 PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
@@ -147,10 +151,9 @@ PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
         info "pyinstaller already built, skipping"
         exit 0
     fi
-    PROJECT_ROOT="${build_dir/../..}"
-    cd "$PROJECT_ROOT"
+    pushd "${build_dir}"
     EC_COMMIT_HASH=$(git rev-parse HEAD)
-    cd "$BUILDDIR"
+    pushd "$BUILDDIR"
     rm -rf pyinstaller
     mkdir pyinstaller
     cd pyinstaller
@@ -170,6 +173,8 @@ PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
     # sanity check bootloader is there:
     [[ -e "PyInstaller/bootloader/Darwin-64bit/runw" ]] || fail "Could not find runw in target dir!"
     rm pyinstaller.py  # workaround for https://github.com/pyinstaller/pyinstaller/pull/6701
+    popd # $BUILDDIR
+    popd # $build_dir
 ) || fail "PyInstaller build failed"
 
 info "Installing PyInstaller"
@@ -184,9 +189,6 @@ echo -n "Pyinstaller "
 pyinstaller --version
 
 rm -rf ./dist
-
-rm  -rf $BUILDDIR > /dev/null 2>&1
-mkdir -p $BUILDDIR
 
 info "Making locale..."
 python3 ./contrib/make_locale || fail "Failed to make locale..."
