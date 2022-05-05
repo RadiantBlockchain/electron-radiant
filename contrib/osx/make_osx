@@ -165,7 +165,8 @@ PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
     rm -fv PyInstaller/bootloader/Darwin-*/run* || true
     # add reproducible randomness. this ensures we build a different bootloader for each commit.
     # if we built the same one for all releases, that might also get anti-virus false positives
-    echo "const char *electron_cash_tag = \"tagged by Electron-Cash@$EC_COMMIT_HASH\";" >> ./bootloader/src/pyi_main.c
+    echo "extern const char * const electron_cash_tag;" >> ./bootloader/src/pyi_main.c
+    echo "const char * const electron_cash_tag = \"tagged by Electron-Cash@$EC_COMMIT_HASH\";" >> ./bootloader/src/pyi_main.c
     pushd bootloader
     # compile bootloader
     python3 ./waf all CFLAGS="-static"
@@ -179,7 +180,7 @@ PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
 
 info "Installing PyInstaller"
 # Use the one we just built above
-python3 -m pip install --no-build-isolation --no-dependencies --no-warn-script-location "$BUILDDIR/pyinstaller" \
+python3 -m pip install --user --upgrade --no-warn-script-location "$BUILDDIR/pyinstaller" \
     && pyenv rehash || fail "Could not install PyInstaller"
 
 info "Using these versions for building $PACKAGE:"  # NB: PACKAGE var comes from ../base.sh
