@@ -138,7 +138,7 @@ python3 -m pip install -I --user -r contrib/osx/requirements-osx-build.txt \
 
 info "Installing PyInstaller"
 # Just use regular, latest PyInstaller 4.2+ from pypi (note that 4.4 seems to crash always!)
-python3 -m pip install 'pyinstaller<4.4' --user --upgrade && pyenv rehash || fail "Could not install PyInstaller"
+python3 -m pip install 'pyinstaller<4.4>=4.2' --user --upgrade && pyenv rehash || fail "Could not install PyInstaller"
 
 info "Using these versions for building $PACKAGE:"  # NB: PACKAGE var comes from ../base.sh
 sw_vers
