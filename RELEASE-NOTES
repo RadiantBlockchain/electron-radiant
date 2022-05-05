@@ -1262,4 +1262,6 @@ and there is no warning message.
 - CashFusion: Add 10BCH fusion tier (SahidMiller)
 - CTOR workaround: Always display receives before sends for the same block
   (cculianu)
-
+- MacOS-build: Build custom pyinstaller from git (SomberNight, cculianu)
+- Update libsqlite3 version for AppImage #2435 (Axel Gembe)
+- Update bundled Tor to version 0.4.7.7 #2434 (Axel Gembe)
