@@ -1265,3 +1265,7 @@ and there is no warning message.
 - MacOS-build: Build custom pyinstaller from git (SomberNight, cculianu)
 - Update libsqlite3 version for AppImage #2435 (Axel Gembe)
 - Update bundled Tor to version 0.4.7.7 #2434 (Axel Gembe)
+- Update OpenSSL to version 1.1.1o #2437 (Axel Gembe)
+- Wine: Update to version 7.7 #2436 (Axel Gembe)
+- Network: Fix for incorrect usage of python when formatting an errmsg
+  (cculianu)
