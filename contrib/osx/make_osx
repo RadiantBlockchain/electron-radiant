@@ -135,10 +135,47 @@ python3 -m pip install -I --user -r contrib/deterministic-build/requirements-pip
 python3 -m pip install -I --user -r contrib/osx/requirements-osx-build.txt \
     || fail "Could not install osx build requirements"
 
+info "Building PyInstaller."
+PYINSTALLER_REPO="https://github.com/pyinstaller/pyinstaller.git"
+PYINSTALLER_COMMIT="e20e74c03768d432d48665b8ef1e02511b16e4be"
+# ^ tag "4.3"
+# TODO test newer versions of pyinstaller for build-reproducibility.
+#      we are using this version for now due to change in code-signing behavior
+#      (https://github.com/pyinstaller/pyinstaller/pull/5581)
+(
+    if [ -f "$BUILDDIR/pyinstaller/PyInstaller/bootloader/Darwin-64bit/runw" ]; then
+        info "pyinstaller already built, skipping"
+        exit 0
+    fi
+    PROJECT_ROOT="${build_dir/../..}"
+    cd "$PROJECT_ROOT"
+    EC_COMMIT_HASH=$(git rev-parse HEAD)
+    cd "$BUILDDIR"
+    rm -rf pyinstaller
+    mkdir pyinstaller
+    cd pyinstaller
+    # Shallow clone
+    git init
+    git remote add origin $PYINSTALLER_REPO
+    git fetch --depth 1 origin $PYINSTALLER_COMMIT
+    git checkout -b pinned "${PYINSTALLER_COMMIT}^{commit}"
+    rm -fv PyInstaller/bootloader/Darwin-*/run* || true
+    # add reproducible randomness. this ensures we build a different bootloader for each commit.
+    # if we built the same one for all releases, that might also get anti-virus false positives
+    echo "const char *electron_cash_tag = \"tagged by Electron-Cash@$EC_COMMIT_HASH\";" >> ./bootloader/src/pyi_main.c
+    pushd bootloader
+    # compile bootloader
+    python3 ./waf all CFLAGS="-static"
+    popd
+    # sanity check bootloader is there:
+    [[ -e "PyInstaller/bootloader/Darwin-64bit/runw" ]] || fail "Could not find runw in target dir!"
+    rm pyinstaller.py  # workaround for https://github.com/pyinstaller/pyinstaller/pull/6701
+) || fail "PyInstaller build failed"
 
 info "Installing PyInstaller"
-# Just use regular, latest PyInstaller 4.2+ from pypi (note that 4.4 seems to crash always!)
-python3 -m pip install 'pyinstaller<4.4>=4.2' --user --upgrade && pyenv rehash || fail "Could not install PyInstaller"
+# Use the one we just built above
+python3 -m pip install --no-build-isolation --no-dependencies --no-warn-script-location "$BUILDDIR/pyinstaller" \
+    && pyenv rehash || fail "Could not install PyInstaller"
 
 info "Using these versions for building $PACKAGE:"  # NB: PACKAGE var comes from ../base.sh
 sw_vers
