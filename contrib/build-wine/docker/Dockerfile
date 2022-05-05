@@ -93,7 +93,7 @@ ENV DBUS_FATAL_WARNINGS=0
 
 RUN wget https://aka.ms/vs/16/release/installer -O /tmp/vs_installer.opc && \
     # As of 2022-04-08 the checksum has changed and is not the same as in winetricks anymore
-    echo "3f3938428c645139a8151803ca62719569eea619ef2f4a8a12f7b64503df6c81 /tmp/vs_installer.opc" | sha256sum -c - && \
+    echo "ac9c4fbe7b2f777c6e46cb69d26d878f9119e3c32172d679bf70c0f003f4c790 /tmp/vs_installer.opc" | sha256sum -c - && \
     7z x -oopc /tmp/vs_installer.opc && rm /tmp/vs_installer.opc && \
     xvfb-run wine opc/Contents/vs_installer.exe install --quiet \
         --channelId VisualStudio.16.Release --channelUri "https://aka.ms/vs/16/release/channel" \
