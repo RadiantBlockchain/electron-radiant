@@ -37,7 +37,7 @@ RUN echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST} main restricted universe multiverse 
 COPY winehq.key /tmp
 
 ENV WINEDIST=devel
-ENV WINEVERSION=7.2~${UBUNTUDIST}-1
+ENV WINEVERSION=7.7~${UBUNTUDIST}-1
 
 RUN echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 /tmp/winehq.key" | sha256sum -c - && \
     apt-key add /tmp/winehq.key && \
@@ -59,9 +59,9 @@ RUN rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
 
-RUN wget -q -O /tmp/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/094a4d8552587fca12a101b6a1104833dad4043f/src/winetricks && \
+RUN wget -q -O /tmp/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/9c97d44b9b68a1b09e244e46f9ae0831ab35c315/src/winetricks && \
     chmod +x /tmp/winetricks && \
-    echo "662738eb3863282b7438bedba0c17c5e1b47f1d4b0f8a929ff7ac48a3ace13b2 /tmp/winetricks" | sha256sum -c -
+    echo "311c8c223bb83a7558b9e51197a9ccf7182bbd63849c64827b87bbc5f627f5cb /tmp/winetricks" | sha256sum -c -
 
 ARG USER_ID
 ARG GROUP_ID
@@ -108,6 +108,9 @@ RUN wget https://aka.ms/vs/16/release/installer -O /tmp/vs_installer.opc && \
     mv opc/Contents/vswhere.exe "${WINEPREFIX}"/"drive_c/Program Files/Microsoft Visual Studio/Installer" && \
     rm -rf opc && wineserver -w
 
+#RUN wine "${WINEPREFIX}"/"drive_c/windows/Microsoft.NET/Framework/v4.0.30319/ngen.exe" executequeueditems && \
+#    wineserver -w
+
 # Patch to make vcvarsall.bat work
 # "C:\Program Files\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x86 && set
 # python -c "from setuptools import msvc; print(msvc.msvc14_get_vc_env('x86'))"
@@ -123,4 +126,5 @@ USER ${USER_ID}:${GROUP_ID}
 # Build a wrapper for MSVC's link.exe that always passes the /Brepro flag to ensure builds are reproducible.
 COPY wrapper.cpp ${WINEPREFIX}/drive_c
 COPY wrapper_install.bat ${WINEPREFIX}/drive_c
-RUN wine C:/wrapper_install.bat
+RUN wine C:/wrapper_install.bat && \
+    wineserver -w
