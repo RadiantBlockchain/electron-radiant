@@ -2707,7 +2707,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         unambiguously resolve the Cash Account.
 
         On failure throws up an error window and returns None.'''
-        return lnsqt.resolve_lns(self, name)
+        return lnsqt.resolve_lns(self.top_level_window(), name, wallet=self.wallet)
 
     def set_contact(self, label, address, typ='address', replace=None) -> Contact:
         ''' Returns a reference to the newly inserted Contact object.
