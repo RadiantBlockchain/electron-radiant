@@ -364,8 +364,8 @@ class LNS(util.PrintError):
         self._names_in_flight = defaultdict(list)  # number (eg 100-based-modified height) -> List[tuple(success_cb, error_cb)]; guarded with lock
 
     def _init_data(self):
-        self.v_by_addr = defaultdict(set) # dict of addr -> set of txid
-        self.v_by_name = defaultdict(set) # dict of lowercased name -> set of txid
+        self.v_by_addr = defaultdict(set)  # dict of addr -> set of Info
+        self.v_by_name = defaultdict(set)  # dict of lowercased name -> set of Info
 
     def diagnostic_name(self):
         return f'{self.wallet.diagnostic_name()}.{__class__.__name__}'
@@ -429,7 +429,7 @@ class LNS(util.PrintError):
         If domain is None, every verified cash account we know about is returned.
 
         If inv is True, then domain specifies addresses NOT to include
-        in the results (i.e. eevery verified LNS Name we know about not in
+        in the results (i.e. every verified LNS Name we know about not in
         domain be returned). """
         if domain is None:
             domain = self.v_by_addr if not inv else set()

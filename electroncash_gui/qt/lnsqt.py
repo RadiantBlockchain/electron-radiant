@@ -77,10 +77,10 @@ class VerifyingDialog(WaitingDialog):
 
 
 def verify_multiple_names(names : List[str], parent : MessageBoxMixin, wallet : Abstract_Wallet, timeout=10.0) -> int:
-    ''' Pass a list of names and will attempt to verify them all in 1 pass.
+    """ Pass a list of names and will attempt to verify them all in 1 pass.
     This is used by the Contacts tab to verify unverified LNS Names that
     may have been imported. Returns the number of successfully verified names
-    or None on user cancel. '''
+    or None on user cancel. """
     if not len(names):
         return 0
     names = set(names)
@@ -117,7 +117,7 @@ def verify_multiple_names(names : List[str], parent : MessageBoxMixin, wallet : 
 
 
 def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = None) -> Optional[Tuple[lns.Info, str]]:
-    ''' Throws up a WaitingDialog while it resolves an LNS Name.
+    """ Throws up a WaitingDialog while it resolves an LNS Name.
 
     Goes out to network, verifies the name.
 
@@ -127,7 +127,7 @@ def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = No
 
       satoshi.bch
 
-    On failure throws up an error window and returns None.'''
+    On failure throws up an error window and returns None."""
     from .main_window import ElectrumWindow
     if isinstance(parent, ElectrumWindow) and not wallet:
         wallet = parent.wallet
@@ -283,12 +283,12 @@ class InfoGroupBox(PrintError, QGroupBox):
             QTimer.singleShot(0, lambda: weakParent() and weakParent().resize(weakParent().sizeHint()))
 
     def buttonGroup(self) -> QButtonGroup:
-        ''' The button group id's will point to indices in self.items() '''
+        """ The button group id's will point to indices in self.items() """
         return self._but_grp
 
     def checkItemWithInfo(self, info : lns.Info):
-        ''' Pass an info object and the item that corresponds to that
-        Info object will be checked. Pass None to uncheck all items. '''
+        """ Pass an info object and the item that corresponds to that
+        Info object will be checked. Pass None to uncheck all items. """
         for i, item in enumerate(self._items):
             if info is None:
                 self._but_grp.button(i).setChecked(False)
@@ -296,22 +296,22 @@ class InfoGroupBox(PrintError, QGroupBox):
                 self._but_grp.button(i).setChecked(True)
 
     def items(self) -> List[Tuple[lns.Info, str]]:
-        ''' The list of items on-screen. self.buttonGroup()'s ids will point
+        """ The list of items on-screen. self.buttonGroup()'s ids will point
         to indices in this list.
 
         Returned list items are 2-tuples of:
-           (Info, fmtd_lns_name: str) '''
+           (Info, fmtd_lns_name: str) """
         return self._items
 
     def selectedItem(self) -> Tuple[lns.Info, str]:
-        ''' Returns the currently selected item tuple or None if none is selected '''
+        """ Returns the currently selected item tuple or None if none is selected """
         items = self.selectedItems()
         if items:
             return items[0]
 
     def selectedItems(self) -> List[Tuple[lns.Info, str]]:
-        ''' In multi-select mode (CheckBox mode), returns the currently selected
-        items as a list of 2-tuple. '''
+        """ In multi-select mode (CheckBox mode), returns the currently selected
+        items as a list of 2-tuple. """
         ret = []
         buts = self._but_grp.buttons()
         for but in buts:
@@ -746,15 +746,15 @@ def lookup_lns_dialog(
 
 
 def lns_detail_dialog(parent: MessageBoxMixin,  # Should be an ElectrumWindow instance
-                      lns_string: str,  # Cash acount string eg: "satoshi.bch"
+                      lns_string: str,  # LNS name string eg: "satoshi.bch"
                       *, title: str = None  # The modal dialog window title
                       ) -> bool:  # returns True on success, False on failure
-    ''' Shows the LNS Name details for any LNS Name.
+    """ Shows the LNS Name details for any LNS Name.
     Note that parent should be a ElectrumWindow instance.
     `lns_string` is just an LNS Name string of the form:
         satoshi.bch
     Returns False on failure or True on success. User is presented with an error
-    message box on False return.'''
+    message box on False return."""
     from .main_window import ElectrumWindow
     assert isinstance(parent, ElectrumWindow)
     wallet = parent.wallet
@@ -849,10 +849,9 @@ def lns_detail_dialog(parent: MessageBoxMixin,  # Should be an ElectrumWindow in
     copy_name_but.setToolTip('<span style="white-space:nowrap">'
                                 + _("Copy <b>{lns_name}</b>").format(lns_name=info.name)
                                 + '</span>')
-    copy_name_but.clicked.connect(lambda ignored=None, ca_string_em=info.name, copy_but=copy_name_but:
-                                    parent.copy_to_clipboard(text=ca_string_em,
-                                                             tooltip=_('Cash Account copied to clipboard'),
-                                                             widget=copy_but))
+    copy_name_but.clicked.connect(lambda ignored=None, lns_string_em=info.name, copy_but=copy_name_but:
+                                  parent.copy_to_clipboard(text=lns_string_em,
+                                                           tooltip=_('LNS Name copied to clipboard'), widget=copy_but))
     grid.addWidget(copy_name_but, 0, 2, 1, 1)
     # address label
     addr_lbl = QLabel(f'<span style="white-space:nowrap; font-size:15pt;"><a href="{info.address.to_ui_string()}"><pre>{info.address.to_ui_string()}</pre></a></span>')
