@@ -1300,10 +1300,16 @@ def rate_limited(rate, *, classlevel=False, ts_after=False):
         return wrapper
     return wrapper0
 
+
+debug_destroyed = False  # Set this to True to debug QObject "destroyed" signals using destroyed_print_error
+
+
 def destroyed_print_error(qobject, msg=None):
-    ''' Supply a message to be printed via print_error when obj is
-    destroyed (Qt C++ deleted). This is useful for debugging memory leaks. '''
+    """ Supply a message to be printed via print_error when obj is destroyed (Qt C++ deleted).
+    This is useful for debugging memory leaks. Note that this function is a no-op unless debug_destroyed is True."""
     assert isinstance(qobject, QObject), "destroyed_print_error can only be used on QObject instances!"
+    if not debug_destroyed:
+        return
     if msg is None:
         # Generate a useful message if none is supplied.
         if isinstance(qobject, PrintError):
@@ -1321,8 +1327,13 @@ def destroyed_print_error(qobject, msg=None):
                 except:
                     pass  # some of the code in this project overrites .parent or it may not have a parent
                 name += qobject.__class__.__qualname__
-        msg = "[{}] destroyed".format(name)
-    qobject.destroyed.connect(lambda x=None,msg=msg: print_error(msg))
+        msg = f"[{name}] destroyed"
+
+    def on_destroyed(obj_ignored):
+        print_error(msg)
+
+    qobject.destroyed.connect(on_destroyed)
+
 
 def webopen(url: str):
     if (sys.platform == 'linux' and os.environ.get('APPIMAGE')
