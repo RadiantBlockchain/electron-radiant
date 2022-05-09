@@ -36,6 +36,7 @@ from .qrcodewidget import QRCodeWidget
 import queue
 import time
 import requests
+import weakref
 from typing import Callable, List, Optional, Tuple
 from enum import IntEnum
 from electroncash import lns
@@ -793,24 +794,27 @@ def lns_detail_dialog(parent: MessageBoxMixin,  # Should be an ElectrumWindow in
 
     grid = QGridLayout(d)
     avatar_lbl = QLabel()
+    weak_avatar_lbl = weakref.ref(avatar_lbl)
     def success_cb(data):
+        """This must run in the main thread, but it may be called at any time, including after outer scope ends."""
+        strong_avatar_lbl = weak_avatar_lbl()
+        if not strong_avatar_lbl:
+            return
         try:
-            avatar_lbl.setText('')
+            strong_avatar_lbl.setText('')
             pix = QPixmap()
             pix.loadFromData(data)
-            avatar_lbl.setPixmap(pix.scaled(75, 75, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            strong_avatar_lbl.setPixmap(pix.scaled(75, 75, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         except:
             pass
 
     def thread_func():
-        url = f'https://metadata.bch.domains/smartbch/avatar/{lns_string}'
-        r = requests.get(url,  allow_redirects=True)
+        avatar_url = f'https://metadata.bch.domains/smartbch/avatar/{lns_string}'
+        r = requests.get(avatar_url,  allow_redirects=True)
         if r.ok:
-            success_cb(r.content)
+            util.do_in_main_thread(success_cb, r.content)
 
-    t = threading.Thread(name=f"LNS avatar download",
-                         target=thread_func, daemon=True)
-    t.start()
+    threading.Thread(name=f"LNS avatar download for {lns_string}", target=thread_func, daemon=True).start()
 
     avatar_lbl.setToolTip(f'<span style="white-space:nowrap;">{info.name}</span>')
     grid.addWidget(avatar_lbl, 0, 0, 3, 1)
