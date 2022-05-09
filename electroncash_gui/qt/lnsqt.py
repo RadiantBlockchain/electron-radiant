@@ -36,7 +36,7 @@ from .qrcodewidget import QRCodeWidget
 import queue
 import time
 import requests
-from typing import Tuple, List, Callable
+from typing import Callable, List, Optional, Tuple
 from enum import IntEnum
 from electroncash import lns
 from electroncash import util
@@ -113,7 +113,8 @@ def verify_multiple_names(names : List[str], parent : MessageBoxMixin, wallet : 
         return None
     return ctr
 
-def resolve_lns(parent : MessageBoxMixin, name : str, wallet : Abstract_Wallet = None) -> Tuple[lns.Info, str]:
+
+def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = None) -> Optional[Tuple[lns.Info, str]]:
     ''' Throws up a WaitingDialog while it resolves an LNS Name.
 
     Goes out to network, verifies the name.
@@ -138,7 +139,8 @@ def resolve_lns(parent : MessageBoxMixin, name : str, wallet : Abstract_Wallet =
         def resolve_verify():
             nonlocal results
             results = wallet.lns.resolve_verify(name)
-            results = [(item,item.name) for item in results]
+            if results:
+                results = [(item, item.name) for item in results]
         code = VerifyingDialog(parent.top_level_window(),
                                _("Verifying LNS Name {name} please wait ...").format(name=name),
                                resolve_verify, on_error=lambda e: parent.show_error(str(e)), auto_show=False).exec_()
@@ -151,7 +153,7 @@ def resolve_lns(parent : MessageBoxMixin, name : str, wallet : Abstract_Wallet =
                           "It either does not exist or there may have been a network connectivity error. "
                           "Please double-check it and try again."))
         if len(results) > 1:
-            tup = multiple_result_picker(parent=parent, wallet=wallet, results=results)
+            tup = multiple_result_picker(parent=parent.top_level_window(), wallet=wallet, results=results)
             if not tup:
                 # user cancel
                 return
@@ -479,7 +481,9 @@ class InfoGroupBox(PrintError, QGroupBox):
         else:
             self.checkItemWithInfo(None)
 
-def multiple_result_picker(parent, results, wallet=None, msg=None, title=None, gbtext=None):
+
+def multiple_result_picker(parent, results, wallet=None, msg=None, title=None,
+                           gbtext=None) -> Optional[Tuple[lns.Info, str]]:
     ''' Pops up a modal dialog telling you to pick a results. Used by the
     Contacts tab edit function, etc. '''
     assert parent
@@ -513,9 +517,8 @@ def multiple_result_picker(parent, results, wallet=None, msg=None, title=None, g
     code = d.exec_()
 
     if code == QDialog.Accepted:
-        item = gb.selectedItem()
-        if item:
-            return item[:-1]
+        return gb.selectedItem()
+
 
 def lookup_lns_dialog(
     parent, wallet, *,  # parent and wallet are required and parent must be an ElectrumWindow instance.
