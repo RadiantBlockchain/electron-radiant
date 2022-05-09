@@ -155,7 +155,7 @@ def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = No
                           "It either does not exist or there may have been a network connectivity error. "
                           "Please double-check it and try again."))
         if len(results) > 1:
-            tup = multiple_result_picker(parent=parent.top_level_window(), wallet=wallet, results=results)
+            tup = multiple_result_picker(parent=parent, wallet=wallet, results=results)
             if not tup:
                 # user cancel
                 return
@@ -173,8 +173,7 @@ def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = No
 
 
 class ButtonAssociatedLabel(QLabel):
-    ''' A QLabel, that if clicked on, sends a 'click()' call to an associated
-    QAbstractButton. '''
+    """ A QLabel, that if clicked on, sends a 'click()' call to an associated QAbstractButton. """
 
     def __init__(self, *args, **kwargs):
         but = kwargs.pop('button', None)
@@ -195,38 +194,44 @@ class ButtonAssociatedLabel(QLabel):
 
 
 def naked_button_style() -> str:
-    ''' Returns a stylesheet for a small 'naked' (flat) QPushButton button which
-    is used in the lookup results and other associated widgets in this file '''
+    """ Returns a stylesheet for a small 'naked' (flat) QPushButton button which
+    is used in the lookup results and other associated widgets in this file """
     but_style_sheet = 'QPushButton { border-width: 1px; padding: 0px; margin: 0px; }'
     if not ColorScheme.dark_scheme:
         but_style_sheet += ''' QPushButton { border: 1px solid transparent; }
         QPushButton:hover { border: 1px solid #3daee9; }'''
     return but_style_sheet
 
+
 def button_make_naked(but: QAbstractButton) -> QAbstractButton:
-    ''' Just applied a bunch of things to a button to "make it naked"
+    """ Just applied a bunch of things to a button to "make it naked"
     which is the look we use for the lookup results and various other odds and
-    ends. Returns the button passed to it. '''
+    ends. Returns the button passed to it. """
     but.setStyleSheet(naked_button_style())
     but.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
     return but
 
+
 class InfoGroupBox(PrintError, QGroupBox):
 
     class ButtonType(IntEnum):
-        NoButton = 0  # If this is specified to button_type, then the buttons will be hidden. selectedItem and selectedItems will have undefined results.
-        Radio    = 1  # If specified, the on-screen buttons will be QRadioButtons and selectedItems() will always have 0 or 1 item.
-        CheckBox = 2  # If specified, the on-screen buttons will be QCheckBox and selectedItems() may be a list of more than 1 result
+        # If this is specified to button_type, then the buttons will be hidden. selectedItem and selectedItems will have
+        # undefined results.
+        NoButton = 0
+        # If specified, the on-screen buttons will be QRadioButtons and selectedItems() will always have 0 or 1 item.
+        Radio = 1
+        # If specified, the on-screen buttons will be QCheckBox and selectedItems() may be a list of more than 1 result
+        CheckBox = 2
 
     def __init__(self,
-                 parent : QWidget,  # widget parent for layout/embedding/etc
-                 main_window : MessageBoxMixin,  # may be same as 'parent'; will raise if not an ElectrumWindow instance
+                 parent: QWidget,  # widget parent for layout/embedding/etc
+                 main_window: MessageBoxMixin,  # may be same as 'parent'; will raise if not an ElectrumWindow instance
                  items: List[Tuple[lns.Info, str]] = [], # list of 1 or 2 tuple : Info[, formatted_string]
-                 title : str = None,
-                 button_type : ButtonType = ButtonType.Radio,  # Note that if CheckBox, the buttonGroup will be made non-exclusive and selectedItems() may return more than 1 item.
-                 extra_buttons : List[Callable[[Tuple[lns.Info, str]], QAbstractButton]] = [],  # pass a list of callables that take a 2-tuple for each item and return a button
-                 show_addresses : bool = True,  # if False, the address label remains hidden
-                 custom_contents_margins : Tuple[int] = None,  # if specified, use this as the contents margins for the internal layout widget
+                 title: str = None,
+                 button_type: ButtonType = ButtonType.Radio,  # Note that if CheckBox, the buttonGroup will be made non-exclusive and selectedItems() may return more than 1 item.
+                 extra_buttons: List[Callable[[Tuple[lns.Info, str]], QAbstractButton]] = [],  # pass a list of callables that take a 2-tuple for each item and return a button
+                 show_addresses: bool = True,  # if False, the address label remains hidden
+                 custom_contents_margins: Tuple[int] = None,  # if specified, use this as the contents margins for the internal layout widget
                  ):
         from .main_window import ElectrumWindow
         assert isinstance(main_window, ElectrumWindow)
@@ -235,7 +240,8 @@ class InfoGroupBox(PrintError, QGroupBox):
         self.wallet = self.main_window.wallet
         self.extra_buttons = extra_buttons or []
         self.show_addresses = bool(show_addresses)
-        if isinstance(custom_contents_margins, (tuple, list)) and len(custom_contents_margins) == 4 and all(isinstance(x, (int, float)) for x in custom_contents_margins):
+        if isinstance(custom_contents_margins, (tuple, list)) and len(custom_contents_margins) == 4 \
+           and all(isinstance(x, (int, float)) for x in custom_contents_margins):
             self.custom_contents_margins = custom_contents_margins
         else:
             self.custom_contents_margins = None
@@ -252,14 +258,14 @@ class InfoGroupBox(PrintError, QGroupBox):
         self.no_items_text = _('No LNS Names')  # client code may set this directly
 
     def setItems(self,
-                 items : List[Tuple[lns.Info, str]],  # list of 1 or 2 tuple : Info[, formatted_string]
-                 title = None, auto_resize_parent = True, sort=True,
-                 button_type : ButtonType = ButtonType.Radio):
+                 items: List[Tuple[lns.Info, str]],  # list of 1 or 2 tuple : Info[, formatted_string]
+                 title=None, auto_resize_parent=True, sort=True,
+                 button_type: ButtonType = ButtonType.Radio):
         items = items or []
         nitems = len(items)
         title = ngettext("{number} LNS Name", "{number} LNS Names", nitems).format(number=nitems) if title is None else title
         wallet = self.wallet
-        if items and (sort): #or len(items[0]) != 3):
+        if items and sort:
             # sort items by formatted LNS Name string, also adding the string to
             # the items tuples; tuples now are modified to 2 elements:
             # (info, formatted_ca_string)
@@ -486,8 +492,8 @@ class InfoGroupBox(PrintError, QGroupBox):
 
 def multiple_result_picker(parent, results, wallet=None, msg=None, title=None,
                            gbtext=None) -> Optional[Tuple[lns.Info, str]]:
-    ''' Pops up a modal dialog telling you to pick a results. Used by the
-    Contacts tab edit function, etc. '''
+    """ Pops up a modal dialog telling you to pick a results. Used by the
+    Contacts tab edit function, etc. """
     assert parent
     from .main_window import ElectrumWindow
     if isinstance(parent, ElectrumWindow) and not wallet:
@@ -497,7 +503,7 @@ def multiple_result_picker(parent, results, wallet=None, msg=None, title=None,
     msg = msg or _('Multiple results were found, please select an option from the items below:')
     title = title or _("Select LNS Name")
 
-    d = WindowModalDialog(parent, title)
+    d = WindowModalDialog(parent.top_level_window(), title)
     util.finalization_print_error(d)  # track object lifecycle
     destroyed_print_error(d)
 
@@ -524,14 +530,14 @@ def multiple_result_picker(parent, results, wallet=None, msg=None, title=None,
 
 def lookup_lns_dialog(
     parent, wallet, *,  # parent and wallet are required and parent must be an ElectrumWindow instance.
-        title: str = None,  # the title to use, defaults to "Lookup LNS Name" (translated) and is bold and larger. Can be rich text.
-        blurb: str = None,  # will appear in the same label, can be rich text, will get concatenated to title.
-        title_label_link_activated_slot: Callable[[str], None] = None,  # if you embed links in the blub, pass a callback to handle them
-        button_type: InfoGroupBox.ButtonType = InfoGroupBox.ButtonType.NoButton,  #  see InfoGroupBox
-        add_to_contacts_button: bool = False,  # if true, the button bar will include an add to contacts button
-        pay_to_button: bool = False  # if true, the button bar will include a "pay to" button
-) -> List[Tuple[lns.Info, str, str]]:  # Returns a list of tuples
-    ''' Shows the generic LNS Name lookup interface. '''
+    title: str = None,  # the title to use, defaults to "Lookup LNS Name" (translated) and is bold and larger. Can be rich text.
+    blurb: str = None,  # will appear in the same label, can be rich text, will get concatenated to title.
+    title_label_link_activated_slot: Callable[[str], None] = None,  # if you embed links in the blub, pass a callback to handle them
+    button_type: InfoGroupBox.ButtonType = InfoGroupBox.ButtonType.NoButton,  #  see InfoGroupBox
+    add_to_contacts_button: bool = False,  # if true, the button bar will include an add to contacts button
+    pay_to_button: bool = False  # if true, the button bar will include a "pay to" button
+) -> Optional[List[Tuple[lns.Info, str]]]:  # Returns a list of tuples or None on failure
+    """ Shows the generic LNS Name lookup interface. """
     from .main_window import ElectrumWindow
     ok_disables = button_type != InfoGroupBox.ButtonType.NoButton
     title = title or _("Lookup LNS Name")
@@ -566,9 +572,8 @@ def lookup_lns_dialog(
     label2 = WWLabel('<a href="https://app.bch.domains">' + _("Search online...") + "</a>")
     label2.linkActivated.connect(webopen)
 
-
-    #acct.setFixedWidth(280)
-    label = HelpLabel(_("&LNS Name"), _("Enter an LNS Name of the form satoshi.bch, and Electron Cash will search for the contact and present you with its resolved address."))
+    label = HelpLabel(_("&LNS Name"), _("Enter an LNS Name of the form satoshi.bch, and Electron Cash will search for "
+                                        "the contact and present you with its resolved address."))
     label.setBuddy(acct)
     search = QPushButton(_("Lookup"))
     search.setEnabled(False)
@@ -592,20 +597,24 @@ def lookup_lns_dialog(
             if isinstance(info.address, Address):
                 if lns_string not in all_lns_contacts and wallet.is_mine(info.address):
                     # We got a result for an LNS that happens to be ours. Remember it.
-                    parent.set_contact(label=lns_string, address=info.address, typ='lns')
+                    parent.set_contact(label=lns_string, address=info.address, typ='lns', resolved=info)
                     all_lns_contacts.add(lns_string)
                 if lns_string in all_lns_contacts:
                     but.setDisabled(True)
-                    but.setToolTip(_('<span style="white-space:nowrap"><b>{lns_name}</b> already in Contacts</span>').format(lns_name=lns_string_em))
+                    but.setToolTip(_('<span style="white-space:nowrap"><b>{lns_name}</b> already in Contacts</span>')
+                                   .format(lns_name=lns_string_em))
                 else:
                     add_str = _("Add to Contacts")
-                    but.setToolTip(f'<span style="white-space:nowrap">{add_str}<br>&nbsp;&nbsp;&nbsp;<b>{lns_string_em}</b></span>')
+                    but.setToolTip(f'<span style="white-space:nowrap">{add_str}<br>&nbsp;&nbsp;&nbsp;<b>{lns_string_em}'
+                                   f'</b></span>')
                     del add_str
                     def add_contact_slot(ign=None, but=but, item=item):
                         # label, address, typ='address') -> str:
-                        new_contact = parent.set_contact(label=lns_string, address=info.address, typ='lns')
+                        new_contact = parent.set_contact(label=lns_string, address=info.address, typ='lns',
+                                                         resolved=item[0])
                         if new_contact:
-                            msg = _('<span style="white-space:nowrap"><b>{lns_name}</b> added to Contacts</span>').format(lns_name=lns_string_em)
+                            msg = (_('<span style="white-space:nowrap"><b>{lns_name}</b> added to Contacts</span>')
+                                   .format(lns_name=lns_string_em))
                             but.setDisabled(True)
                             but.setToolTip(msg)
                             all_lns_contacts.add(new_contact.name)
@@ -627,7 +636,8 @@ def lookup_lns_dialog(
             but = QPushButton(QIcon(icon_file), "")
             if isinstance(info.address, Address):
                 payto_str = _("Pay to")
-                but.setToolTip(f'<span style="white-space:nowrap">{payto_str}<br>&nbsp;&nbsp;&nbsp;<b>{lns_string_em}</b></span>')
+                but.setToolTip(f'<span style="white-space:nowrap">{payto_str}<br>&nbsp;&nbsp;&nbsp;'
+                               f'<b>{lns_string_em}</b></span>')
                 but.clicked.connect(lambda: parent.is_alive() and parent.payto_payees([lns_string_em]))
                 but.clicked.connect(d.reject)
             else:
@@ -636,11 +646,11 @@ def lookup_lns_dialog(
             return but
         extra_buttons.append(create_payto_but)
     # /Extra Buttons
-    ca = InfoGroupBox(frame, parent, button_type = button_type, title = '', extra_buttons=extra_buttons)
-    ca.refresh()
+    info_gb = InfoGroupBox(frame, parent, button_type = button_type, title = '', extra_buttons=extra_buttons)
+    info_gb.refresh()
     frame.setMinimumWidth(765)
     frame.setMinimumHeight(250)
-    frame.setWidget(ca)
+    frame.setWidget(info_gb)
     frame.setWidgetResizable(True)
     vbox.addWidget(frame)
     search.setDefault(True)
@@ -655,12 +665,12 @@ def lookup_lns_dialog(
         ok.setDefault(False)
         vbox.addLayout(Buttons(ok))
 
-    def ca_msg(m, clear=False):
-        ca.no_items_text = m
+    def my_msg(m, clear=False):
+        info_gb.no_items_text = m
         if clear:
-            ca.setItems([], auto_resize_parent=False, title = '')
+            info_gb.setItems([], auto_resize_parent=False, title = '')
         else:
-            ca.refresh()
+            info_gb.refresh()
         tit_lbl.setText('')
 
     def on_return_pressed():
@@ -670,35 +680,40 @@ def lookup_lns_dialog(
     def on_text_changed(txt):
         txt = txt.strip() if txt else ''
         search.setEnabled(bool(wallet.lns.parse_string(txt)))
-        if not txt and not ca.items():
-            ca_msg(" ")
+        if not txt and not info_gb.items():
+            my_msg(" ")
 
     def on_search():
         ok.setDisabled(ok_disables)
         name = acct.text().strip()
         tup = wallet.lns.parse_string(name)
         if tup:
-            ca_msg(_("Searching for <b>{lns_name}</b> please wait ...").format(lns_name=name), True)
-            results = None
+            my_msg(_("Searching for <b>{lns_name}</b> please wait ...").format(lns_name=name), True)
+            results: Optional[List] = None
             exc = []
             t0 = time.time()
             def resolve_verify():
                 nonlocal results
                 results = wallet.lns.resolve_verify(name, exc=exc)
-                results = [(item,item.name) for item in results]
+                if results:
+                    results = [(item, item.name) for item in results]
             code = VerifyingDialog(parent.top_level_window(),
                                    _("Verifying LNS Name {name} please wait ...").format(name=name),
                                    resolve_verify, auto_show=False).exec_()
             if code == QDialog.Rejected:
-                # user cancel -- the waiting dialog thread will continue to run in the background but that's ok.. it will be a no-op
+                # user cancel -- the waiting dialog thread will continue to run in the background
+                # but that's ok.. it will be a no-op
                 d.reject()
                 return
             if results:
-                ca.setItems(results, auto_resize_parent=False, title='', button_type = button_type)  # suppress groupbox title
+                # suppress groupbox title
+                info_gb.setItems(results, auto_resize_parent=False, title='', button_type=button_type)
             else:
-                ca_msg(_("The specified LNS Name does not appear to be associated with any BCH address"), True)
+                my_msg(_("The specified LNS Name does not appear to be associated with any BCH address"), True)
                 if time.time()-t0 >= lns.timeout:
-                    if (wallet.verifier and wallet.synchronizer and  # check these are still alive: these could potentially go away from under us if wallet is stopped when we get here.
+                    # check these are still alive: these could potentially go away from under us if wallet is stopped
+                    # when we get here.
+                    if (wallet.verifier and wallet.synchronizer and
                             (not wallet.verifier.is_up_to_date() or not wallet.synchronizer.is_up_to_date())):
                         parent.show_message(_("No results found. However, your wallet is busy updating."
                                               " This can interfere with LNS lookups."
@@ -708,30 +723,32 @@ def lookup_lns_dialog(
                                               "You may want to check that your internet connection is up and "
                                               "not saturated processing other requests."))
                 elif exc and isinstance(exc[-1], requests.ConnectionError):
-                    parent.show_error(_("A network connectivity error occured. Please check your internet connection and try again."))
+                    parent.show_error(_("A network connectivity error occured. Please check your internet connection"
+                                        " and try again."))
             nres = len(results or [])
-            title =  "<b>" + name + "</b> - " + ngettext("{number} LNS Name", "{number} LNS Names", nres).format(number=nres)
+            title = ("<b>" + name + "</b> - " + ngettext("{number} LNS Name", "{number} LNS Names", nres)
+                     .format(number=nres))
             tit_lbl.setText(title)
         else:
-            ca_msg(_("Invalid LNS Name, please try again"), True)
+            my_msg(_("Invalid LNS Name, please try again"), True)
 
     acct.textChanged.connect(on_text_changed)
     search.clicked.connect(on_search)
     acct.returnPressed.connect(on_return_pressed)
-    ca.buttonGroup().buttonClicked.connect(lambda x=None: ok.setEnabled(ok_disables and ca.selectedItem() is not None))
+    info_gb.buttonGroup().buttonClicked.connect(lambda x=None: ok.setEnabled(ok_disables and info_gb.selectedItem() is not None))
 
-    ca_msg(" ")
+    my_msg(" ")
 
     if d.exec_() == QDialog.Accepted:
-        return ca.selectedItems()
+        return info_gb.selectedItems()
     parent.contact_list.do_update_signal.emit()  # In case they added some contacts, etc
     return None
 
 
-def lns_detail_dialog(parent : MessageBoxMixin,  # Should be an ElectrumWindow instance
-                               lns_string : str,  # Cash acount string eg: "satoshi.bch"
-                               *, title : str = None  # The modal dialog window title
-    ) -> bool:  # returns True on success, False on failure
+def lns_detail_dialog(parent: MessageBoxMixin,  # Should be an ElectrumWindow instance
+                      lns_string: str,  # Cash acount string eg: "satoshi.bch"
+                      *, title: str = None  # The modal dialog window title
+                      ) -> bool:  # returns True on success, False on failure
     ''' Shows the LNS Name details for any LNS Name.
     Note that parent should be a ElectrumWindow instance.
     `lns_string` is just an LNS Name string of the form:
@@ -833,7 +850,9 @@ def lns_detail_dialog(parent : MessageBoxMixin,  # Should be an ElectrumWindow i
                                 + _("Copy <b>{lns_name}</b>").format(lns_name=info.name)
                                 + '</span>')
     copy_name_but.clicked.connect(lambda ignored=None, ca_string_em=info.name, copy_but=copy_name_but:
-                                    parent.copy_to_clipboard(text=ca_string_em, tooltip=_('Cash Account copied to clipboard'), widget=copy_but) )
+                                    parent.copy_to_clipboard(text=ca_string_em,
+                                                             tooltip=_('Cash Account copied to clipboard'),
+                                                             widget=copy_but))
     grid.addWidget(copy_name_but, 0, 2, 1, 1)
     # address label
     addr_lbl = QLabel(f'<span style="white-space:nowrap; font-size:15pt;"><a href="{info.address.to_ui_string()}"><pre>{info.address.to_ui_string()}</pre></a></span>')

@@ -33,7 +33,7 @@ import queue
 import random
 import time
 from collections import defaultdict, namedtuple
-from typing import Tuple, List, Union
+from typing import List, Optional, Tuple, Union
 
 from electroncash.simple_config import get_config
 from . import util
@@ -52,11 +52,11 @@ except ImportError:
 # other wallets in the future.
 URI_SCHEME = 'lns'
 
-class ArgumentError(ValueError):
-    '''Raised by various LNS functions if the supplied args are bad or
-    out of spec.'''
 
-#### Lookup & Verification
+class ArgumentError(ValueError):
+    """"Raised by various LNS functions if the supplied args are bad or
+    out of spec."""
+
 
 class Info(namedtuple("Info", "name, address, registrationDate, expiryDate")):
     @classmethod
@@ -69,6 +69,7 @@ class Info(namedtuple("Info", "name, address, registrationDate, expiryDate")):
         d = self._asdict()
         d['address'] = self.address.to_ui_string()
         return d
+
 
 debug = False  # network debug setting. Set to True when developing to see more verbose information about network operations.
 timeout = 25.0  # default timeout used in various network functions, in seconds.
@@ -148,6 +149,7 @@ graph_servers = [
 w3: Web3 = None
 contract: Contract = None
 
+
 def get_lns_contract() -> Contract:
     global w3
     global contract
@@ -171,8 +173,9 @@ def validate(name):
             if not strict:
                 raise ArgumentError("Strictly full names required (including .bch)")
 
+
 def lookup(server, name: Union[str, List[str]], timeout=timeout, exc=[], debug=debug) -> List[Info]:
-    ''' Synchronous lookup, returns a List[Info] or None on error.
+    """ Synchronous lookup, returns a List[Info] or None on error.
 
     Optionally, pass a list as the `exc` parameter and the exception encountered
     will be returned to caller by appending to the list.
@@ -183,8 +186,7 @@ def lookup(server, name: Union[str, List[str]], timeout=timeout, exc=[], debug=d
     Use `name` as a list of strict LNS names to lookup these names
 
     Name matching is case-insensitive. Also, name can be a substring and not a
-    complete LNS domain name.
-    '''
+    complete LNS domain name. """
     validate(name)
 
     contract = get_lns_contract()
@@ -203,9 +205,8 @@ def lookup(server, name: Union[str, List[str]], timeout=timeout, exc=[], debug=d
 
     try:
         ret = []
-        moreToLoad = True
-        while moreToLoad:
-            r = requests.post(url, json=get_json(skip), allow_redirects=True, timeout=timeout) # will raise requests.exceptions.Timeout on timeout
+        while True:
+            r = requests.post(url, json=get_json(skip), allow_redirects=True, timeout=timeout)  # will raise requests.exceptions.Timeout on timeout
             r.raise_for_status()
             d = r.json()
             if not isinstance(d, dict) or not d.get('data'):
@@ -215,25 +216,22 @@ def lookup(server, name: Union[str, List[str]], timeout=timeout, exc=[], debug=d
             if not isinstance(registrations, list):
                 raise RuntimeError('Bad response')
 
-            if (len(registrations)):
+            if len(registrations):
                 names = [d['labelName'] + '.bch' for d in registrations]
                 COIN_TYPE_BCH = 145
                 addrs = contract.functions.getAddrs(names, COIN_TYPE_BCH).call()
-                filtered = [dict(reg, addr=addr)  for (reg, addr) in zip(registrations,addrs) if addr != b'']
+                filtered = [dict(reg, addr=addr) for (reg, addr) in zip(registrations,addrs) if addr != b'']
 
                 for reg in filtered:
-                    ret.append(
-                        Info(
-                            reg['labelName'] + '.bch',
-                            get_address_from_output_script(reg['addr'])[1],
-                            int(reg['registrationDate']),
-                            int(reg['expiryDate'])
-                        ))
+                    ret.append(Info(reg['labelName'] + '.bch',
+                                    get_address_from_output_script(reg['addr'])[1],
+                                    int(reg['registrationDate']),
+                                    int(reg['expiryDate'])))
 
-            if (len(registrations) == batch):
+            if len(registrations) == batch:
                 skip += batch
             else:
-                moreToLoad = False
+                break
 
         return ret
     except Exception as e:
@@ -242,9 +240,9 @@ def lookup(server, name: Union[str, List[str]], timeout=timeout, exc=[], debug=d
         if isinstance(exc, list):
             exc.append(e)
 
-def lookup_asynch(server, success_cb, error_cb=None,
-                  name=None, timeout=timeout, debug=debug):
-    ''' Like lookup() above, but spawns a thread and does its lookup
+
+def lookup_asynch(server, success_cb, error_cb=None, name=None, timeout=timeout, debug=debug):
+    """ Like lookup() above, but spawns a thread and does its lookup
     asynchronously.
 
     success_cb - will be called on successful completion with a single arg:
@@ -258,7 +256,7 @@ def lookup_asynch(server, success_cb, error_cb=None,
     context of the spawned thread, (So e.g. Qt GUI code using this function
     should not modify the GUI directly from the callbacks but instead should
     emit a Qt signal from within the callbacks to be delivered to the main
-    thread as usual.) '''
+    thread as usual.) """
 
     def thread_func():
         exc = []
@@ -278,9 +276,9 @@ def lookup_asynch(server, success_cb, error_cb=None,
                          target=thread_func, daemon=True)
     t.start()
 
-def lookup_asynch_all(success_cb, error_cb=None, name=None,
-                      timeout=timeout, debug=debug):
-    ''' Like lookup_asynch above except it tries *all* the hard-coded servers
+
+def lookup_asynch_all(success_cb, error_cb=None, name=None, timeout=timeout, debug=debug):
+    """ Like lookup_asynch above except it tries *all* the hard-coded servers
     from `servers` and if all fail, then calls the error_cb exactly once.
     If any succeed, calls success_cb exactly once.
 
@@ -291,7 +289,7 @@ def lookup_asynch_all(success_cb, error_cb=None, name=None,
     One of the two callbacks are guaranteed to be called in either case.
 
     Callbacks are called in another thread context so GUI-facing code should
-    be aware of that fact (see nodes for lookup_asynch above).  '''
+    be aware of that fact (see nodes for lookup_asynch above).  """
     my_servers = [get_config().get('lns_graph_server', graph_servers[0])]
     random.shuffle(my_servers)
     N = len(my_servers)
@@ -320,19 +318,18 @@ def lookup_asynch_all(success_cb, error_cb=None, name=None,
         if error_cb:
             error_cb(exc)
     def do_lookup_all_staggered():
-        ''' Send req. out to all servers, staggering the requests every 200ms,
+        """ Send req. out to all servers, staggering the requests every 200ms,
         and stopping early after the first success.  The goal here is to
         maximize the chance of successful results returned, with tolerance for
         some servers being unavailable, while also conserving on bandwidth a
-        little bit and not unconditionally going out to ALL servers.'''
+        little bit and not unconditionally going out to ALL servers."""
         t0 = time.time()
         for i, server in enumerate(my_servers):
             if debug: util.print_error("server:", server, i)
             lookup_asynch(server,
-                          success_cb = lambda res, _server=server: on_succ(res, _server),
-                          error_cb = lambda exc, _server=server: on_err(exc, _server),
-                          name = name, timeout = timeout,
-                          debug = debug)
+                          success_cb=lambda res, _server=server: on_succ(res, _server),
+                          error_cb=lambda exc, _server=server: on_err(exc, _server),
+                          name=name, timeout=timeout, debug=debug)
             try:
                 q.get(timeout=0.200)
                 while True:
@@ -352,8 +349,9 @@ def lookup_asynch_all(success_cb, error_cb=None, name=None,
     t = threading.Thread(daemon=True, target=do_lookup_all_staggered)
     t.start()
 
+
 class LNS(util.PrintError):
-    ''' Class implementing LNS subsystem such as verification, etc. '''
+    """ Class implementing LNS subsystem such as verification, etc. """
 
     def __init__(self, wallet):
         assert wallet, "LNS cannot be instantiated without a wallet"
@@ -378,25 +376,23 @@ class LNS(util.PrintError):
     def stop(self):
         pass
 
-    def fmt_info(self, info : Info) -> str:
-        ''' Given an Info object, returns a string of the form:
-        satoshi.bch
-        '''
+    def fmt_info(self, info: Info) -> str:
+        """ Given an Info object, returns a string of the form: satoshi.bch """
         return info.name
 
     @classmethod
     def parse_string(cls, s: str) -> Tuple[str, bool]:
-        ''' Returns a (name, bool) tuple on parse success
+        """ Returns a (name, bool) tuple on parse success
         Bool indicates strictly formatted LNS name ending on .bch
-        Does not raise, merely returns None on all errors.'''
+        Does not raise, merely returns None on all errors."""
 
         return s.strip(), s.endswith('.bch')
 
-    def resolve_verify(self, lns_string: str, timeout: float = timeout, exc: list = None) -> List[Info]:
-        ''' Blocking resolver for LNS Names. Given a lns_string of the
+    def resolve_verify(self, lns_string: str, timeout: float = timeout, exc: list = None) -> Optional[List[Info]]:
+        """ Blocking resolver for LNS Names. Given a lns_string of the
         form: satoshi.bch, will verify the name existence, check that
         BCH address was set for this record and do other magic.
-        It will return a list of tuple of (Info, minimal_chash).
+        It will return a list of tuple of Info.
 
         This goes out to the network each time, so use it in GUI code that
         really needs to know verified LNS Names (eg before sending funds),
@@ -408,7 +404,7 @@ class LNS(util.PrintError):
         It will return None on failure or nothing found.
 
         Optional arg `exc` is where to put the exception on network or other
-        failure. '''
+        failure. """
 
         validate(lns_string)
         done = threading.Event()
@@ -428,13 +424,13 @@ class LNS(util.PrintError):
         return pb
 
     def get_lns_names(self, domain=None, inv=False) -> List[Info]:
-        ''' Returns a list of Info objects for verified LNS Names in domain.
+        """ Returns a list of Info objects for verified LNS Names in domain.
         Domain must be an iterable of addresses (either wallet or external).
         If domain is None, every verified cash account we know about is returned.
 
         If inv is True, then domain specifies addresses NOT to include
         in the results (i.e. eevery verified LNS Name we know about not in
-        domain be returned). '''
+        domain be returned). """
         if domain is None:
             domain = self.v_by_addr if not inv else set()
         ret = []
@@ -452,42 +448,40 @@ class LNS(util.PrintError):
         return ret
 
     def get_wallet_lns_names(self) -> List[Info]:
-        ''' Convenience method, returns all the verified cash accounts we
-        know about for wallet addresses only. '''
+        """ Convenience method, returns all the verified lns names we
+        know about for wallet addresses only. """
         return self.get_lns_names(domain=self.wallet.get_addresses())
 
     def get_external_lns_names(self) -> List[Info]:
-        ''' Convenience method, retruns all the verified cash accounts we
-        know about that are not for wallet addresses. '''
+        """ Convenience method, retruns all the verified lns names we
+        know about that are not for wallet addresses. """
         return self.get_lns_names(domain=self.wallet.get_addresses(), inv=True)
 
     def load(self):
-        ''' Note: loading should happen before threads are started, so no lock
-        is needed.'''
+        """ Note: loading should happen before threads are started, so no lock
+        is needed."""
         self._init_data()
 
-
     def save(self, write=False):
-        '''
+        """
         FYI, current data model is:
 
         self.v_by_addr = defaultdict(set) # dict of addr -> set of txid
         self.v_by_name = defaultdict(set) # dict of lowercased name -> set of txid
-        '''
+        """
         pass
 
     def get_verified(self, lns_name) -> Info:
-        ''' Returns the Info object for lns_name of the form: satoshi.bch
-        or None if not found in self.v_by_name '''
+        """ Returns the Info object for lns_name of the form: satoshi.bch
+        or None if not found in self.v_by_name """
         name, _strict =  self.parse_string(lns_name)
         l = self.find_verified(name=name)
         if l:
             return l[0]
 
     def find_verified(self, name: str) -> List[Info]:
-        ''' Returns a list of Info objects for verified LNS Names matching
-        lowercased name.
-        '''
+        """ Returns a list of Info objects for verified LNS Names matching
+        lowercased name. """
         ret = []
         with self.lock:
             name = name.lower()
@@ -502,11 +496,11 @@ class LNS(util.PrintError):
         return ret
 
     def verify_name_asynch(self, name=None, success_cb=None, error_cb=None, timeout=timeout, debug=debug):
-        ''' Tries all servers. Calls success_cb with the verified List[Info]
+        """ Tries all servers. Calls success_cb with the verified List[Info]
         as the single argument on first successful retrieval of the block.
         Calls error_cb with the exc as the only argument on failure. Guaranteed
         to call 1 of the 2 callbacks in either case.  Callbacks are optional
-        and won't be called if specified as None. '''
+        and won't be called if specified as None. """
         exc=[]
         key = json.dumps(list(name))
         def on_error(exc):
@@ -539,8 +533,10 @@ class LNS(util.PrintError):
             l = self._names_in_flight[key]
             l.append((success_cb, error_cb))
             if len(l) == 1:
-                if debug: self.print_error(f"verify_name_asynch: initiating new lookup_asynch_all on #{key}")
+                if debug:
+                    self.print_error(f"verify_name_asynch: initiating new lookup_asynch_all on #{key}")
                 lookup_asynch_all(name=name, success_cb=on_success, error_cb=on_error, timeout=timeout, debug=debug)
             else:
-                if debug: self.print_error(f"verify_name_asynch: #{key} already in-flight, will just enqueue callbacks")
+                if debug:
+                    self.print_error(f"verify_name_asynch: #{key} already in-flight, will just enqueue callbacks")
 

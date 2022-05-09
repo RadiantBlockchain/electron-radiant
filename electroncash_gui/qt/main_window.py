@@ -2713,7 +2713,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
 
         On failure throws up an error window and returns None.'''
         assert lnsqt.available
-        return lnsqt.resolve_lns(self.top_level_window(), name, wallet=self.wallet)
+        return lnsqt.resolve_lns(self, name, wallet=self.wallet)
 
     def set_contact(self, label, address, typ='address', replace=None, *, resolved=None) -> Optional[Contact]:
         ''' Returns a reference to the newly inserted Contact object.
@@ -3095,8 +3095,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.show_warning(msg=msg, rich_text=True, title=_("LNS Subsystem Unavailable"))
             return
         blurb = "<br><br>" + _('Enter a search term or a string of the form <b>satoshi.bch</b>')
-        lnsqt.lookup_lns_dialog(self, self.wallet, blurb=blurb,
-                                add_to_contacts_button = True, pay_to_button = True)
+        lnsqt.lookup_lns_dialog(self, self.wallet, blurb=blurb, add_to_contacts_button=True, pay_to_button=True)
 
     def show_master_public_keys(self):
         dialog = WindowModalDialog(self.top_level_window(), _("Wallet Information"))
