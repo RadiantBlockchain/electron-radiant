@@ -2,8 +2,8 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <utility>
-#include <vector>
 
 #include <windows.h>
 
@@ -15,10 +15,11 @@ namespace {
         ~Defer() { f(); }
     };
 
-    std::string ReplaceCommandAndPrependArg(const std::string& commandLine, const std::string& newCmd, const std::string& arg)
+    std::string ReplaceCommandAndPrependArg(std::string_view commandLine, const std::string& newCmd,
+                                            const std::string& arg)
     {
         bool in_quot{}, in_bs{};
-        std::string::size_type pos{};
+        std::string_view::size_type pos{};
         for (; pos < commandLine.size(); ++pos) {
             const char ch = commandLine[pos];
             if (ch == ' ' && !in_quot && !in_bs) break;
@@ -26,20 +27,20 @@ namespace {
             else if (ch == '"' && !in_bs) in_quot = !in_quot;
             else if (in_bs) in_bs = false;
         }
-        return newCmd + " " + arg + commandLine.substr(pos);
+        return newCmd + " " + arg + std::string{commandLine.substr(pos)};
     }
 
     std::string GetErrorMessage(DWORD dwErrorCode)
     {
         LPSTR psz = nullptr;
         const DWORD cchMsg = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS
-            | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-            NULL, // (not used with FORMAT_MESSAGE_FROM_SYSTEM)
-            dwErrorCode,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            reinterpret_cast<LPSTR>(&psz),
-            0,
-            NULL);
+                                            | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                                            NULL, // (not used with FORMAT_MESSAGE_FROM_SYSTEM)
+                                            dwErrorCode,
+                                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                            reinterpret_cast<LPSTR>(&psz),
+                                            0,
+                                            NULL);
         if (cchMsg > 0)
         {
             // Delete psz on scope end (in case std::string c'tor throw)
@@ -59,9 +60,9 @@ int main()
 {
     const char* const prog = PROG;
     const char* const arg = ARG;
-    const std::string newCmdLine = ReplaceCommandAndPrependArg(GetCommandLineA(), prog, arg);
+    std::string cmdBuf = ReplaceCommandAndPrependArg(GetCommandLineA(), prog, arg);
     //std::cerr << "Old: [" << GetCommandLineA() << "]" << std::endl;
-    //std::cerr << "New: [" << newCmdLine << "]" << std::endl;
+    //std::cerr << "New: [" << cmdBuf << "]" << std::endl;
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -70,13 +71,7 @@ int main()
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    // Mutable string buffer is needed here for CreateProcessA()
-    std::vector<char> cmdBuf;
-    cmdBuf.reserve(newCmdLine.size() + 1);
-    cmdBuf.insert(cmdBuf.begin(), newCmdLine.begin(), newCmdLine.end());
-    cmdBuf.push_back('\0');
-
-    // Start the child process. 
+    // Start the child process.
     if (!CreateProcessA(NULL,          // No module name (use command line)
                         cmdBuf.data(), // Command line
                         NULL,          // Process handle not inheritable
@@ -84,7 +79,7 @@ int main()
                         FALSE,         // Set handle inheritance to FALSE
                         0,             // No creation flags
                         NULL,          // Use parent's environment block
-                        NULL,          // Use parent's starting directory 
+                        NULL,          // Use parent's starting directory
                         &si,           // Pointer to STARTUPINFO structure
                         &pi)           // Pointer to PROCESS_INFORMATION structure
         )
@@ -97,7 +92,7 @@ int main()
     WaitForSingleObject(pi.hProcess, INFINITE);
 
     Defer d([&pi] {
-        // Close process and thread handles. 
+        // Close process and thread handles.
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     });
