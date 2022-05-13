@@ -16,7 +16,7 @@ namespace {
     };
 
     std::string ReplaceCommandAndPrependArg(std::string_view commandLine, const std::string& newCmd,
-                                            const std::string& arg)
+                                            const std::string& arg, const std::string& argPost)
     {
         bool in_quot{}, in_bs{};
         std::string_view::size_type pos{};
@@ -27,7 +27,7 @@ namespace {
             else if (ch == '"' && !in_bs) in_quot = !in_quot;
             else if (in_bs) in_bs = false;
         }
-        return newCmd + " " + arg + std::string{commandLine.substr(pos)};
+        return newCmd + " " + arg + std::string{commandLine.substr(pos)} + " " + argPost;
     }
 
     std::string GetErrorMessage(DWORD dwErrorCode)
@@ -60,7 +60,8 @@ int main()
 {
     const char* const prog = PROG;
     const char* const arg = ARG;
-    std::string cmdBuf = ReplaceCommandAndPrependArg(GetCommandLineA(), prog, arg);
+    const char* const argPost = ARG_POST;
+    std::string cmdBuf = ReplaceCommandAndPrependArg(GetCommandLineA(), prog, arg, argPost);
     //std::cerr << "Old: [" << GetCommandLineA() << "]" << std::endl;
     //std::cerr << "New: [" << cmdBuf << "]" << std::endl;
 
