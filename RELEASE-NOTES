@@ -1282,3 +1282,9 @@ and there is no warning message.
   fixes the remaining portion (hopefully) of the crash issues seen on
   Windows. (cculianu)
 - LNS: Misc fixups and code cleanup (cculianu)
+
+# RELEASE NOTES 4.2.10
+
+- Windows build: Restored reproducibility of the Windows build #2444
+  (Axel Gembe)
+- Removal of dead code (cculianu)
