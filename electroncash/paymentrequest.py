@@ -110,12 +110,6 @@ def get_payment_request(url):
                 print_error('fetched payment request', url, len(response.content))
             except requests.exceptions.RequestException as e:
                 error = str(e)
-        elif u.scheme == 'file':
-            try:
-                with open(u.path, 'r', encoding='utf-8') as f:
-                    data = f.read()
-            except IOError:
-                error = "payment URL not pointing to a valid file"
         else:
             error = f"unknown scheme: '{u.scheme}'"
 
