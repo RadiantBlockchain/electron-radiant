@@ -155,9 +155,6 @@ class ElectrumGui(QObject, PrintError):
         self.app.focusChanged.connect(self.on_focus_change)  # track last window the user interacted with
         self.shutdown_signal.connect(self.close, Qt.QueuedConnection)
         run_hook('init_qt', self)
-        # We did this once already in the set_dark_theme call, but we do this
-        # again here just in case some plugin modified the color scheme.
-        ColorScheme.update_from_widget(QWidget())
 
         self._check_and_warn_qt_version()
 
