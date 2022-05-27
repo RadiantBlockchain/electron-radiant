@@ -1288,3 +1288,4 @@ and there is no warning message.
 - Windows build: Restored reproducibility of the Windows build #2444
   (Axel Gembe)
 - Removal of dead code (cculianu)
+- Fixup for dark mode on some Linux and Windows systems (Pierre K)
