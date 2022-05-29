@@ -88,10 +88,15 @@ def double_sha256(x):
     return sha256(sha256(x))
 
 def ripemd160(x):
-    '''Simple wrapper of hashlib ripemd160.'''
-    h = _new_hash('ripemd160')
-    h.update(x)
-    return h.digest()
+    try:
+        md = hashlib.new('ripemd160')
+        md.update(x)
+        return md.digest()
+    except:
+        # Fall-back to native python (in case hashlib lacks native ripemd160)
+        from . import ripemd
+        md = ripemd.new(x)
+        return md.digest()
 
 def hash160(x):
     '''RIPEMD-160 of SHA-256.
