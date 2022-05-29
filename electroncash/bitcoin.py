@@ -449,16 +449,30 @@ def i2o_ECPublicKey(pubkey, compressed=False):
 # end pywallet openssl private key implementation
 
 
-############ functions from pywallet #####################
-def hash_160(public_key):
+def ripemd160(x: bytes) -> bytes:
     try:
+        # First, try openssl
         md = hashlib.new('ripemd160')
-        md.update(sha256(public_key))
+        md.update(x)
         return md.digest()
-    except BaseException:
-        from . import ripemd
-        md = ripemd.new(sha256(public_key))
-        return md.digest()
+    except:
+        # Ripemd160 missing from openssl, fall-back to pycryptodomex
+        try:
+            import Crypto
+            from Crypto.Hash import RIPEMD160
+            md = RIPEMD160.new()
+            md.update(x)
+            return md.digest()
+        except:
+            # If all else fails, fall-back to python-only implementation
+            from . import ripemd
+            md = ripemd.new(x)
+            return md.digest()
+
+
+############ functions from pywallet #####################
+def hash_160(public_key: bytes) -> bytes:
+    return ripemd160(sha256(public_key))
 
 
 def hash160_to_b58_address(h160, addrtype):

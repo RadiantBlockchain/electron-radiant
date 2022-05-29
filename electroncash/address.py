@@ -29,7 +29,7 @@ from collections import namedtuple
 from typing import Union
 
 from . import cashaddr, networks
-from .bitcoin import EC_KEY, is_minikey, minikey_to_private_key, SCRIPT_TYPES, OpCodes, push_script_bytes
+from .bitcoin import EC_KEY, is_minikey, minikey_to_private_key, SCRIPT_TYPES, OpCodes, push_script_bytes, ripemd160
 from .util import cachedproperty, inv_dict
 
 _sha256 = hashlib.sha256
@@ -86,17 +86,6 @@ def sha256(x):
 def double_sha256(x):
     '''SHA-256 of SHA-256, as used extensively in bitcoin.'''
     return sha256(sha256(x))
-
-def ripemd160(x):
-    try:
-        md = hashlib.new('ripemd160')
-        md.update(x)
-        return md.digest()
-    except:
-        # Fall-back to native python (in case hashlib lacks native ripemd160)
-        from . import ripemd
-        md = ripemd.new(x)
-        return md.digest()
 
 def hash160(x):
     '''RIPEMD-160 of SHA-256.
