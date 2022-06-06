@@ -105,7 +105,7 @@ class TestNet(AbstractNet):
     DEFAULT_UNIT = "tBCH"
 
     # Nov 13. 2017 HF to CW144 DAA height (height of last block mined on old DAA)
-    CW144_HEIGHT = 1155875
+    CW144_HEIGHT = 1188697
 
     # Bitcoin Cash fork block specification
     BITCOIN_CASH_FORK_BLOCK_HEIGHT = 1155876
