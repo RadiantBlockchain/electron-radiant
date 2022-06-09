@@ -574,6 +574,9 @@ class LedgerPlugin(HW_PluginBase):
                    (0x2c97, 0x0004), # Nano-X
                    (0x2c97, 0x4011), # Nano-X app-bitcoin >= 1.5.1
                    (0x2c97, 0x4015), # Nano-X app-bitcoin >= 1.5.1
+                   (0x2c97, 0x0005), # Nano-S-Plus
+                   (0x2c97, 0x5011), # Nano-S-Plus app-bitcoin >= 1.5.1
+                   (0x2c97, 0x5015), # Nano-S-Plus app-bitcoin >= 1.5.1
                  ]
 
     def __init__(self, parent, config, name):
