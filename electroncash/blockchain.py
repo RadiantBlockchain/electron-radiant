@@ -55,46 +55,74 @@ NULL_HASH_HEX = NULL_HASH_BYTES.hex()
 
 
 def bits_to_work(bits):
-    return (1 << 256) // (bits_to_target(bits) + 1)
+    target = bits_to_target(bits)
+    if not (0 < target < (1 << 256)):
+        return 0
+    return (1 << 256) // (target + 1)
 
 
-def bits_to_target(bits: int) -> int:
-    # arith_uint256::SetCompact in Bitcoin Cash Node
-    # see https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/v24.0.0/src/arith_uint256.cpp#L208
-    if not (0 <= bits < (1 << 32)):
-        raise Exception(f"bits should be uint32. got {bits!r}")
-    bitsN = (bits >> 24) & 0xff
-    bitsBase = bits & 0x7fffff
-    if bitsN <= 3:
-        target = bitsBase >> (8 * (3 - bitsN))
-    else:
-        target = bitsBase << (8 * (bitsN - 3))
-    if target != 0 and bits & 0x800000 != 0:
-        # Bit number 24 (0x800000) represents the sign of N
-        raise Exception("target cannot be negative")
-    if (target != 0 and
-        (bitsN > 34 or
-         (bitsN > 33 and bitsBase > 0xff) or
-         (bitsN > 32 and bitsBase > 0xffff))):
-        raise Exception("target has overflown")
-    return target
+def _get_little_endian_num_bits(b: bytes) -> int:
+    """ Returns 1 + the position of the highest bit that is set in bytes b
+    or 0 if the bytes object is all 0's. Like BCHN's arith_uint256::bits() """
+    width = len(b)
+    for pos in range(width - 1, -1, -1):
+        if b[pos]:
+            for nbits in range(7, 0, -1):
+                if b[pos] & (1 << nbits):
+                    return 8 * pos + nbits + 1
+            return 8 * pos + 1
+    return 0
+
+
+def _get_little_endian_low64(b: bytes) -> int:
+    """ Like BCHN's arith_uint256::GetLow64() """
+    assert len(b) >= 8
+    return int.from_bytes(b[:8], byteorder='little', signed=False) & 0xff_ff_ff_ff_ff_ff_ff_ff
 
 
 def target_to_bits(target: int) -> int:
     # arith_uint256::GetCompact in Bitcoin Cash Node
     # see https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/v24.0.0/src/arith_uint256.cpp#L230
-    c = target.to_bytes(length=32, byteorder='big')
-    bitsN = len(c)
-    while bitsN > 0 and c[0] == 0:
-        c = c[1:]
-        bitsN -= 1
-        if len(c) < 3:
-            c += b'\x00'
-    bitsBase = int.from_bytes(c[:3], byteorder='big')
-    if bitsBase >= 0x800000:
-        bitsN += 1
-        bitsBase >>= 8
-    return bitsN << 24 | bitsBase
+    if not (0 <= target < (1 << 256)):
+        raise Exception(f"target should be uint256. got {target!r}")
+    b = target.to_bytes(length=32, byteorder='little', signed=False)
+    nsize = (_get_little_endian_num_bits(b) + 7) // 8
+    if nsize <= 3:
+        ncompact = (_get_little_endian_low64(b) << (8 * (3 - nsize))) & 0xffffffff
+    else:
+        bn = (target >> (8 * (nsize - 3))).to_bytes(length=32, byteorder='little', signed=False)
+        ncompact = _get_little_endian_low64(bn) & 0xffffffff
+    # The 0x00800000 bit denotes the sign.
+    # Thus, if it is already set, divide the mantissa by 256 and increase the
+    # exponent.
+    if ncompact & 0x00800000:
+        ncompact >>= 8
+        nsize += 1
+    assert (ncompact & ~0x007fffff) == 0
+    assert nsize < 256
+    ncompact |= nsize << 24
+    return ncompact
+
+
+def bits_to_target(ncompact: int) -> int:
+    # arith_uint256::SetCompact in Bitcoin Cash Node
+    # see https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/v24.0.0/src/arith_uint256.cpp#L208
+    if not (0 <= ncompact < (1 << 32)):
+        raise Exception(f"ncompact should be uint32. got {ncompact!r}")
+    nsize = ncompact >> 24
+    nword = ncompact & 0x007fffff
+    if nsize <= 3:
+        nword >>= 8 * (3 - nsize)
+        ret = nword
+    else:
+        ret = nword
+        ret <<= 8 * (nsize - 3)
+    # Check for negative, bit 24 represents sign of N
+    if nword != 0 and (ncompact & 0x00800000) != 0:
+        raise Exception("target cannot be negative")
+    if nword != 0 and ((nsize > 34) or (nword > 0xff and nsize > 33) or (nword > 0xffff and nsize > 32)):
+        raise Exception("target has overflown")
+    return ret
 
 
 def serialize_header(res):
@@ -423,16 +451,17 @@ class Blockchain(util.PrintError):
         #In order to avoid a block in a very skewed timestamp to have too much
         #influence, we select the median of the 3 top most block as a start point
         #Reference: github.com/Bitcoin-ABC/bitcoin-abc/master/src/pow.cpp#L201
+        assert suitableheight >= 3
         blocks2 = self.read_header(suitableheight, chunk)
         blocks1 = self.read_header(suitableheight-1, chunk)
         blocks = self.read_header(suitableheight-2, chunk)
 
-        if (blocks['timestamp'] > blocks2['timestamp'] ):
-            blocks,blocks2 = blocks2,blocks
-        if (blocks['timestamp'] > blocks1['timestamp'] ):
-            blocks,blocks1 = blocks1,blocks
-        if (blocks1['timestamp'] > blocks2['timestamp'] ):
-            blocks1,blocks2 = blocks2,blocks1
+        if blocks['timestamp'] > blocks2['timestamp']:
+            blocks, blocks2 = blocks2, blocks
+        if blocks['timestamp'] > blocks1['timestamp']:
+            blocks, blocks1 = blocks1, blocks
+        if blocks1['timestamp'] > blocks2['timestamp']:
+            blocks1, blocks2 = blocks2, blocks1
 
         return blocks1['block_height']
 
@@ -532,17 +561,18 @@ class Blockchain(util.PrintError):
             daa_starting_timestamp = self.read_header(daa_starting_height, chunk)['timestamp']
             daa_ending_timestamp = self.read_header(daa_ending_height, chunk)['timestamp']
             daa_elapsed_time = daa_ending_timestamp - daa_starting_timestamp
-            if (daa_elapsed_time>172800):
-                daa_elapsed_time=172800
-            if (daa_elapsed_time<43200):
-                daa_elapsed_time=43200
+            # NOTE: the below assume 600 second block times
+            if daa_elapsed_time > 172800:
+                daa_elapsed_time = 172800
+            if daa_elapsed_time < 43200:
+                daa_elapsed_time = 43200
 
             # calculate and return new target
             daa_Wn = (daa_cumulative_work*600) // daa_elapsed_time
-            daa_target = (1 << 256) // daa_Wn - 1
-            daa_retval = target_to_bits(daa_target)
-            daa_retval = int(daa_retval)
-            return daa_retval
+            daa_target = ((1 << 256) // daa_Wn) - 1
+            if daa_target > MAX_TARGET:
+                return MAX_BITS
+            return target_to_bits(daa_target)
 
         #END OF NOV-2017 DAA
         N_BLOCKS = networks.net.LEGACY_POW_RETARGET_BLOCKS  # Normally 2016
@@ -570,7 +600,8 @@ class Blockchain(util.PrintError):
         # target by 25% (reducing difficulty by 20%).
         target = bits_to_target(bits)
         target += target >> 2
-
+        if target > MAX_TARGET:
+            return MAX_BITS
         return target_to_bits(target)
 
     def get_new_bits(self, height, chunk=None):
@@ -583,10 +614,12 @@ class Blockchain(util.PrintError):
         prior = self.read_header(height - 1, chunk)
         prior_target = bits_to_target(prior['bits'])
 
-        target_span = networks.net.LEGACY_POW_TARGET_TIMESPAN # usually: 14 * 24 * 60 * 60 = 2 weeks
+        target_span = networks.net.LEGACY_POW_TARGET_TIMESPAN  # usually: 14 * 24 * 60 * 60 = 2 weeks
         span = prior['timestamp'] - first['timestamp']
         span = min(max(span, target_span // 4), target_span * 4)
         new_target = (prior_target * span) // target_span
+        if new_target > MAX_TARGET:
+            return MAX_BITS
         return target_to_bits(new_target)
 
     def can_connect(self, header, check_height=True):
