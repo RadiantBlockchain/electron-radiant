@@ -2,7 +2,7 @@ pyaes>=0.1a1
 ecdsa>=0.9
 requests
 qrcode
-protobuf>=3.7.1
+protobuf>=3.7.1,<=3.20.1
 jsonrpclib-pelix
 PySocks>=1.6.6
 qdarkstyle>=2.8
