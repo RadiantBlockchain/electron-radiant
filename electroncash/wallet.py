@@ -64,6 +64,7 @@ from . import bitcoin
 from . import coinchooser
 from .synchronizer import Synchronizer
 from .verifier import SPV, SPVDelegate
+from .rpa.rpa_manager import Rpa_manager
 from . import schnorr
 from . import ecc_fast
 from .blockchain import NULL_HASH_HEX
@@ -75,7 +76,7 @@ from .contacts import Contacts
 from . import cashacct
 from . import lns
 from . import slp
-
+from .rpa import paycode as rpa
 
 def _(message): return message
 
@@ -194,6 +195,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
         # verifier (SPV) and synchronizer are started in start_threads
         self.verifier: Optional[SPV] = None
         self.synchronizer: Optional[Synchronizer] = None
+        self.rpa_manager = None
         self.weak_window = None  # Some of the GUI classes, such as the Qt ElectrumWindow, use this to refer back to themselves.  This should always be a weakref.ref (Weak.ref), or None
         # CashAccounts subsystem. Its network-dependent layer is started in
         # start_threads. Note: object instantiation should be lightweight here.
@@ -2148,11 +2150,16 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             self.synchronizer = Synchronizer(self, network)
             finalization_print_error(self.verifier)
             finalization_print_error(self.synchronizer)
-            network.add_jobs([self.verifier, self.synchronizer])
+            if self.wallet_type == 'rpa':
+                self.rpa_manager = Rpa_manager(self,network)
+                network.add_jobs([self.verifier, self.synchronizer,self.rpa_manager])
+            else:
+                network.add_jobs([self.verifier, self.synchronizer])
             self.cashacct.start(self.network)  # start cashacct network-dependent subsystem, nework.add_jobs, etc
         else:
             self.verifier = None
             self.synchronizer = None
+            self.rpa_manager = None
 
     def stop_threads(self):
         if self.network:
@@ -2169,6 +2176,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             self.verifier.release()
             self.synchronizer = None
             self.verifier = None
+            self.rpa_manager = None
             self.stop_pruned_txo_cleaner_thread()
             # Now no references to the syncronizer or verifier
             # remain so they will be GC-ed
@@ -3035,6 +3043,170 @@ class ImportedPrivkeyWallet(ImportedWalletBase):
         if pubkey in self.keystore.keypairs:
             return pubkey.address
 
+class RpaWallet(ImportedWalletBase):
+    # wallet made of imported private keys
+
+    wallet_type = 'rpa'
+    txin_type = 'p2pkh'
+    rpa_pwd = None
+
+    def __init__(self, storage):
+        Abstract_Wallet.__init__(self, storage)
+        self.keystore_rpa_aux = None
+        self.rpa_height = 0
+        self.rpa_payload = None
+
+    @classmethod
+    def from_text(cls, storage, text, password=None):
+        wallet = cls(storage)
+        storage.put('use_encryption', bool(password))
+        for privkey in text.split():
+            wallet.import_private_key(privkey, password)
+        return wallet
+
+    def is_watching_only(self):
+        return False
+
+    def get_keystores(self):
+        return [self.keystore]
+
+    def get_keystore_rpa_aux(self):
+        return self.keystore_rpa_aux
+
+    def can_import_privkey(self):
+        return True
+        
+    def has_seed(self):
+        return self.keystore_rpa_aux.has_seed()
+
+    def get_seed(self, password):
+        return self.keystore_rpa_aux.get_seed(password)
+
+    def load_keystore_rpa_aux(self):
+        if self.storage.get('keystore_rpa_aux'):
+            self.keystore_rpa_aux = load_keystore(
+                self.storage, 'keystore_rpa_aux')
+
+    def load_keystore(self):
+        self.load_keystore_rpa_aux()
+        if self.storage.get('keystore'):
+            self.keystore = load_keystore(self.storage, 'keystore')
+        else:
+            self.keystore = Imported_KeyStore({})
+
+    def save_keystore(self):
+        self.storage.put('keystore', self.keystore.dump())
+
+    def check_password(self, password):
+        self.keystore_rpa_aux.check_password(password)
+
+    def save_keystore_rpa_aux(self):
+        self.storage.put('keystore_rpa_aux', self.keystore_rpa_aux.dump())
+
+    def load_addresses(self):
+        pass
+
+    def save_addresses(self):
+        pass
+
+    def update_password(self, old_pw, new_pw, encrypt=False):
+        if old_pw is None and self.has_password():
+            raise InvalidPassword()
+          
+        if self.keystore is not None and len(self.keystore.keypairs) > 0 and self.keystore.can_change_password():
+            self.keystore.update_password(old_pw,new_pw)
+            self.save_keystore()
+        if self.keystore_rpa_aux is not None and self.keystore_rpa_aux.can_change_password():
+            self.keystore_rpa_aux.update_password(old_pw, new_pw)
+            self.save_keystore_rpa_aux()
+        self.storage.set_password(new_pw, encrypt)
+        self.storage.write()
+        self.rpa_pwd = new_pw
+
+    def can_change_password(self):
+        return True
+
+    def can_import_address(self):
+        return False
+
+    def get_addresses(self, include_change=False):
+        return self.keystore.get_addresses()
+
+    def delete_address_derived(self, address):
+        self.keystore.remove_address(address)
+        self.save_keystore()
+
+    def get_address_index(self, address):
+        return self.get_public_key(address)
+
+    def get_public_key(self, address):
+        return self.keystore.address_to_pubkey(address)
+
+    def import_private_key(self, sec, pw):
+        pubkey = self.keystore.import_privkey(sec, pw)
+        self.save_keystore()
+        self.add_address(pubkey.address)
+        self.cashacct.save()
+        self.save_addresses()
+        self.storage.write()  # no-op if above already wrote
+        return pubkey.address.to_ui_string()
+
+    def export_private_key(self, address, password):
+        '''Returned in WIF format.'''
+        pubkey = self.keystore.address_to_pubkey(address)
+        return self.keystore.export_private_key(pubkey, password)
+
+    def export_private_key_from_index(self, index, password):
+        # returns a private from the HD (rpa auxilliary) keystore based on the index
+        # The index is a tuple consisting of Change (boolean) and Address number.
+        # for example (False,0) is the first receiving address.
+        pk, compressed = self.keystore_rpa_aux.get_private_key(index, password)
+        return bitcoin.serialize_privkey(pk, compressed, self.txin_type)
+
+    def add_input_sig_info(self, txin, address):
+        assert txin['type'] == 'p2pkh'
+        pubkey = self.keystore.address_to_pubkey(address)
+        txin['num_sig'] = 1
+        txin['x_pubkeys'] = [pubkey.to_ui_string()]
+        txin['signatures'] = [None]
+
+    def pubkeys_to_address(self, pubkey):
+        pubkey = PublicKey.from_string(pubkey)
+        if pubkey in self.keystore.keypairs:
+            return pubkey.address
+
+    def derive_pubkeys(self, c, i):
+        if not self.keystore_rpa_aux:
+            self.load_keystore_rpa_aux()
+        k = self.get_keystore_rpa_aux()
+        return k.derive_pubkey(c, i)
+        
+    def dummy_address(self):
+        pubkey = self.derive_pubkeys(0, 0)
+        dummy_address = Address.from_pubkey(pubkey)
+        return dummy_address
+        
+    def get_grind_string(self):
+        rpa_grind_string = rpa.get_grind_string(self)
+        return rpa_grind_string
+
+    def get_receiving_paycode(self):
+        return rpa.generate_paycode(self, prefix_size="10")
+        
+    def extract_private_keys_from_transaction(self,rawtx,password):
+        return rpa.extract_private_keys_from_transaction(self, rawtx, password)
+
+    def fetch_rpa_mempool_txs_from_server(self):
+        # This function is intended to be called when the clients wants
+        # to check for new incoming RPA transactions from the mempool. 
+        
+        self.rpa_manager.rpa_phase_1_mempool()
+        return
+
+    def rebuild_history(self):
+        self.storage.put('rpa_height', 743000)  # ask from the user in later iterations
+        super(RpaWallet, self).rebuild_history()
+
 
 class Deterministic_Wallet(Abstract_Wallet):
 
@@ -3292,8 +3464,8 @@ class Multisig_Wallet(Deterministic_Wallet):
     def is_multisig(self):
         return True
 
+wallet_types = ['standard', 'multisig', 'imported', 'rpa']
 
-wallet_types = ['standard', 'multisig', 'imported']
 
 def register_wallet_type(category):
     wallet_types.append(category)
@@ -3304,6 +3476,7 @@ wallet_constructors = {
     'xpub': Standard_Wallet,
     'imported_privkey': ImportedPrivkeyWallet,
     'imported_addr': ImportedAddressWallet,
+    'rpa': RpaWallet,
 }
 
 def register_constructor(wallet_type, constructor):

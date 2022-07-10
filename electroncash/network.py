@@ -5,7 +5,7 @@
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
 # (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
+# includindg without limitation the rights to use, copy, modify, merge,
 # publish, distribute, sublicense, and/or sell copies of the Software,
 # and to permit persons to whom the Software is furnished to do so,
 # subject to the following conditions:
@@ -275,6 +275,7 @@ class Network(util.DaemonThread):
 
         self.banner = ''
         self.donation_address = ''
+        self.features = None
         self.relay_fee = None
         # callbacks passed with subscriptions
         self.subscriptions = defaultdict(list)
@@ -496,6 +497,7 @@ class Network(util.DaemonThread):
             assert message_id is not None
         self.queue_request('server.banner', [])
         self.queue_request('server.donation_address', [])
+        self.queue_request('server.features', [])
         self.queue_request('server.peers.subscribe', [])
         #self.request_fee_estimates()  # We disable fee estimates globally in this app for now. BCH doesn't need them and they create more user confusion than anything.
         self.queue_request('blockchain.relayfee', [])
@@ -533,7 +535,7 @@ class Network(util.DaemonThread):
 
     def get_status_value(self, key):
         if key == 'status':
-            value = self.connection_status
+            value = self.connection_status  
         elif key == 'banner':
             value = self.banner
         elif key == 'fee':
@@ -549,6 +551,8 @@ class Network(util.DaemonThread):
             value = self.get_interfaces()
         elif key == 'proxy':
             value = (self.proxy and self.proxy.copy()) or None
+        elif key =='features':
+            value = self.features
         else:
             raise RuntimeError('unexpected trigger key {}'.format(key))
         return value
@@ -794,6 +798,8 @@ class Network(util.DaemonThread):
         result = response.get('result')
         method = response.get('method')
         params = response.get('params')
+ 
+        #print ("DEBUG network 815")
 
         # FIXME:
         # Do more to enforce result correctness, has the right data type, etc.
@@ -806,7 +812,7 @@ class Network(util.DaemonThread):
         if method == 'server.version':
             if isinstance(result, list):
                 self.on_server_version(interface, result)
-        elif method == 'blockchain.headers.subscribe':
+        if method == 'blockchain.headers.subscribe':
             if error is None:
                 # on_notify_header below validates result is right type or format
                 self.on_notify_header(interface, result)
@@ -824,6 +830,10 @@ class Network(util.DaemonThread):
         elif method == 'server.donation_address':
             if error is None and isinstance(result, str):
                 self.donation_address = result
+        elif method == 'server.features':
+            if error is None and isinstance(result, dict):
+                self.features = result
+                self.notify('features')
         elif method == 'blockchain.estimatefee':
             try:
                 if error is None and isinstance(result, (int, float)) and result > 0:
@@ -958,7 +968,7 @@ class Network(util.DaemonThread):
         # called). I've seen the code send empty message lists before in synchronizer.py
         if messages:
             with self.pending_sends_lock:
-                self.pending_sends.append((messages, callback))
+               self.pending_sends.append((messages, callback))
 
     def process_pending_sends(self):
         # Requests needs connectivity.  If we don't have an interface,
@@ -1329,6 +1339,8 @@ class Network(util.DaemonThread):
             params = [height, networks.net.VERIFICATION_BLOCK_HEIGHT]
         self.queue_request('blockchain.block.header', params, interface)
         return True
+        
+        
 
     def on_header(self, interface, request, response):
         """Handle receiving a single block header"""
@@ -1822,6 +1834,7 @@ class Network(util.DaemonThread):
         txid = str(txid).strip()
         try:
             r = self.synchronous_get(('blockchain.transaction.get',[txid]), timeout=timeout)
+            print ("DEBUG network 1803 r is ",r)
             return True, r
         except BaseException as e:
             self.print_error("Exception retrieving transaction for '{}': {}".format(txid, repr(e)))

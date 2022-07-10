@@ -158,6 +158,7 @@ setup(
         'electroncash',
         'electroncash.qrreaders',
         'electroncash.slp',
+        'electroncash.rpa',
         'electroncash.tor',
         'electroncash.utils',
         'electroncash_gui',

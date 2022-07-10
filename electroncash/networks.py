@@ -50,6 +50,7 @@ class MainNet(AbstractNet):
     ADDRTYPE_P2PKH = 0
     ADDRTYPE_P2SH = 5
     CASHADDR_PREFIX = "bitcoincash"
+    RPA_PREFIX = "paycode"
     HEADERS_URL = "http://bitcoincash.com/files/blockchain_headers"  # Unused
     GENESIS = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
     DEFAULT_PORTS = {'t': '50001', 's': '50002'}
@@ -96,6 +97,7 @@ class TestNet(AbstractNet):
     ADDRTYPE_P2PKH = 111
     ADDRTYPE_P2SH = 196
     CASHADDR_PREFIX = "bchtest"
+    RPA_PREFIX = "paycodetest"
     HEADERS_URL = "http://bitcoincash.com/files/testnet_headers"  # Unused
     GENESIS = "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"
     DEFAULT_PORTS = {'t':'51001', 's':'51002'}

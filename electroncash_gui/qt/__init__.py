@@ -81,6 +81,7 @@ from .update_checker import UpdateChecker
 
 class ElectrumGui(QObject, PrintError):
     new_window_signal = pyqtSignal(str, object)
+    new_window_initialized_signal = pyqtSignal()
     update_available_signal = pyqtSignal(bool)
     cashaddr_toggled_signal = pyqtSignal()  # app-wide signal for when cashaddr format is toggled. This used to live in each ElectrumWindow instance but it was recently refactored to here.
     cashaddr_status_button_hidden_signal = pyqtSignal(bool)  # app-wide signal for when cashaddr toggle button is hidden from the status bar
@@ -670,6 +671,7 @@ class ElectrumGui(QObject, PrintError):
                     self.warning(title=_('Error'), message = 'Cannot load wallet:\n' + str(e), icon=QMessageBox.Critical)
                 return
             w = self.create_window_for_wallet(wallet)
+            self.new_window_initialized_signal.emit()
         if uri:
             w.pay_to_URI(uri)
         w.bring_to_top()

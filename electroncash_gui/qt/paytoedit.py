@@ -88,8 +88,10 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         self._original_style_sheet = self.styleSheet() or ''
 
         self.previous_payto = ''
+
         self.previous_ca_could_not_verify = set()
         self.previous_lns_could_not_verify = set()
+        self.is_paycode = False
 
         if sys.platform in ('darwin',):
             # See issue #1411 -- on *some* macOS systems, clearing the
@@ -107,6 +109,13 @@ class PayToEdit(PrintError, ScanQRTextEdit):
         self.setReadOnly(b)
         self.setStyleSheet(self._original_style_sheet + (frozen_style if b else normal_style))
         self.overlay_widget.setHidden(b)
+        
+        
+    def setIsPaycode(self, val):
+        self.is_paycode = val
+
+    def setDefault(self):
+        self.setStyleSheet(self._original_style_sheet + util.ColorScheme.DEFAULT.as_stylesheet(True))
 
     def setGreen(self):
         if sys.platform in ('darwin',) and util.ColorScheme.dark_scheme:
