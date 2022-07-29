@@ -39,10 +39,11 @@ def bits_to_target(bits: int) -> int:
     else:
         return word << (8 * (size - 3))
 
+# Updated for Radiant
 def _get_asert_activation_mtp():
-    """ Returns 1605441600 (Nov 15, 2020 12:00:00 UTC) or whatever override may
+    """ Returns 1657404000 (Sat Jul 09 2022 22:00:00 GMT+0000) or whatever override may
     be set by the env variable ASERT_MTP """
-    default_mtp = 1605441600  # Nov 15, 2020 12:00:00 UTC
+    default_mtp = 1657404000  # Sat Jul 09 2022 22:00:00 GMT+0000
     mtp = os.environ.get('ASERT_MTP', default_mtp)
     try: mtp = int(mtp)
     except: pass
@@ -60,9 +61,10 @@ class ASERTDaa:
     """ Parameters and methods for the ASERT DAA. Instances of these live in
     networks.TestNet, networks.MainNet as part of the chain params. """
 
-    MTP_ACTIVATION_TIME = _get_asert_activation_mtp()  # Normally Nov. 15th, 2020 UTC 12:00:00
+    # Updated for Radiant
+    MTP_ACTIVATION_TIME = _get_asert_activation_mtp()  # Normally 1657404000 (Sat Jul 09 2022 22:00:00 GMT+0000)
 
-    IDEAL_BLOCK_TIME = 10 * 60  # 10 mins
+    IDEAL_BLOCK_TIME = 5 * 60  # 5 mins
     HALF_LIFE = 2 * 24 * 3600  # for mainnet, testnet has 3600 (1 hour) half-life
     # Integer implementation uses these for fixed point math
     RBITS = 16  # number of bits after the radix for fixed-point math
