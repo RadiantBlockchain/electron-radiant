@@ -1,5 +1,9 @@
-Electron Cash - Lightweight Bitcoin Cash client
+Electron Radiant - Lightweight Radiant client
 =====================================
+
+Forked from Electron Cash.
+
+### Todo: Not tested, needs builds and SHA512/256 pow verification
 
 ::
 
