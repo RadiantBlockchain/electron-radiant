@@ -40,8 +40,8 @@ class AbstractNet:
     LEGACY_POW_TARGET_TIMESPAN = 14 * 24 * 60 * 60   # 2 weeks
     LEGACY_POW_TARGET_INTERVAL = 10 * 60  # 10 minutes
     LEGACY_POW_RETARGET_BLOCKS = LEGACY_POW_TARGET_TIMESPAN // LEGACY_POW_TARGET_INTERVAL  # 2016 blocks
-    BASE_UNITS = {'BCH': 8, 'mBCH': 5, 'bits': 2}
-    DEFAULT_UNIT = "BCH"
+    BASE_UNITS = {'RAD': 8, 'mRAD': 5, 'bits': 2}
+    DEFAULT_UNIT = "RAD"
 
 
 class MainNet(AbstractNet):
@@ -103,8 +103,8 @@ class TestNet(AbstractNet):
     DEFAULT_PORTS = {'t':'51001', 's':'51002'}
     DEFAULT_SERVERS = _read_json_dict('servers_testnet.json')  # DO NOT MODIFY IN CLIENT CODE
     TITLE = 'Electron Radiant Testnet'
-    BASE_UNITS = {'tBCH': 8, 'mtBCH': 5, 'tbits': 2}
-    DEFAULT_UNIT = "tBCH"
+    BASE_UNITS = {'tRAD': 8, 'mtRAD': 5, 'tbits': 2}
+    DEFAULT_UNIT = "tRAD"
 
     # Nov 13. 2017 HF to CW144 DAA height (height of last block mined on old DAA)
     CW144_HEIGHT = 1188697
@@ -153,8 +153,8 @@ class TestNet4(TestNet):
 class ScaleNet(TestNet):
     GENESIS = "00000000e6453dc2dfe1ffa19023f86002eb11dbb8e87d0291a4599f0430be52"
     TITLE = 'Electron Cash Scalenet'
-    BASE_UNITS = {'sBCH': 8, 'msBCH': 5, 'sbits': 2}
-    DEFAULT_UNIT = "tBCH"
+    BASE_UNITS = {'sRAD': 8, 'msRAD': 5, 'sbits': 2}
+    DEFAULT_UNIT = "tRAD"
 
 
     HEADERS_URL = "http://bitcoincash.com/files/scalenet_headers"  # Unused
