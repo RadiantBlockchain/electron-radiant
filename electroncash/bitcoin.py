@@ -25,6 +25,7 @@
 # SOFTWARE.
 
 import hashlib
+from Crypto.Hash import SHA512
 import base64
 import hmac
 import os
@@ -413,6 +414,16 @@ def Hash(x):
     out = bytes(sha256(sha256(x)))
     return out
 
+def sha512_256(x):
+    x = to_bytes(x, 'utf8')
+    h = SHA512.new(truncate="256")
+    h.update(x)
+    return bytes(h.digest())
+
+def RadiantHash(x):
+    x = to_bytes(x, 'utf8')
+    out = bytes(sha512_256(sha512_256(x)))
+    return out
 
 def hmac_oneshot(key, msg, digest):
     """ Params key, msg and return val are bytes.

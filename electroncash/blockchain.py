@@ -146,7 +146,7 @@ def deserialize_header(s, height):
     return h
 
 def hash_header_hex(header_hex):
-    return hash_encode(Hash(bfh(header_hex)))
+    return hash_encode(RadiantHash(bfh(header_hex)))
 
 def hash_header(header):
     if header is None:

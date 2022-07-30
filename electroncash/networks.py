@@ -40,8 +40,8 @@ class AbstractNet:
     LEGACY_POW_TARGET_TIMESPAN = 14 * 24 * 60 * 60   # 2 weeks
     LEGACY_POW_TARGET_INTERVAL = 10 * 60  # 10 minutes
     LEGACY_POW_RETARGET_BLOCKS = LEGACY_POW_TARGET_TIMESPAN // LEGACY_POW_TARGET_INTERVAL  # 2016 blocks
-    BASE_UNITS = {'BCH': 8, 'mBCH': 5, 'bits': 2}
-    DEFAULT_UNIT = "BCH"
+    BASE_UNITS = {'RAD': 8, 'mRAD': 5, 'bits': 2}
+    DEFAULT_UNIT = "RAD"
 
 
 class MainNet(AbstractNet):
@@ -55,7 +55,7 @@ class MainNet(AbstractNet):
     GENESIS = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
     DEFAULT_PORTS = {'t': '50001', 's': '50002'}
     DEFAULT_SERVERS = _read_json_dict('servers.json')  # DO NOT MODIFY IN CLIENT CODE
-    TITLE = 'Electron Cash'
+    TITLE = 'Electron Radiant'
 
     # Bitcoin Cash fork block specification
     BITCOIN_CASH_FORK_BLOCK_HEIGHT = 478559
@@ -72,13 +72,13 @@ class MainNet(AbstractNet):
     #    network.synchronous_get(("blockchain.block.header", [height, height]))
     #
     # Consult the ElectrumX documentation for more details.
-    VERIFICATION_BLOCK_MERKLE_ROOT = "60b3f9f9e439fd5f6c95ae380b91a480359657afd9206a9274f66fd42845273b"
-    VERIFICATION_BLOCK_HEIGHT = 717171
+    VERIFICATION_BLOCK_MERKLE_ROOT = "6cafe6844c6f42085778412ce6415e810cbfb030a505ba9731e29bde72097421"
+    VERIFICATION_BLOCK_HEIGHT = 18144
     asert_daa = ASERTDaa(is_testnet=False)
     # Note: We *must* specify the anchor if the checkpoint is after the anchor, due to the way
     # blockchain.py skips headers after the checkpoint.  So all instances that have a checkpoint
     # after the anchor must specify the anchor as well.
-    asert_daa.anchor = Anchor(height=661647, bits=402971390, prev_time=1605447844)
+    asert_daa.anchor = Anchor(height=18206, bits=453224288, prev_time=1657404650)
 
     # Version numbers for BIP32 extended keys
     # standard: xprv, xpub
@@ -102,9 +102,9 @@ class TestNet(AbstractNet):
     GENESIS = "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"
     DEFAULT_PORTS = {'t':'51001', 's':'51002'}
     DEFAULT_SERVERS = _read_json_dict('servers_testnet.json')  # DO NOT MODIFY IN CLIENT CODE
-    TITLE = 'Electron Cash Testnet'
-    BASE_UNITS = {'tBCH': 8, 'mtBCH': 5, 'tbits': 2}
-    DEFAULT_UNIT = "tBCH"
+    TITLE = 'Electron Radiant Testnet'
+    BASE_UNITS = {'tRAD': 8, 'mtRAD': 5, 'tbits': 2}
+    DEFAULT_UNIT = "tRAD"
 
     # Nov 13. 2017 HF to CW144 DAA height (height of last block mined on old DAA)
     CW144_HEIGHT = 1188697
@@ -153,8 +153,8 @@ class TestNet4(TestNet):
 class ScaleNet(TestNet):
     GENESIS = "00000000e6453dc2dfe1ffa19023f86002eb11dbb8e87d0291a4599f0430be52"
     TITLE = 'Electron Cash Scalenet'
-    BASE_UNITS = {'sBCH': 8, 'msBCH': 5, 'sbits': 2}
-    DEFAULT_UNIT = "tBCH"
+    BASE_UNITS = {'sRAD': 8, 'msRAD': 5, 'sbits': 2}
+    DEFAULT_UNIT = "tRAD"
 
 
     HEADERS_URL = "http://bitcoincash.com/files/scalenet_headers"  # Unused

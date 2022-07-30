@@ -45,8 +45,8 @@ def inv_dict(d):
     return {v: k for k, v in d.items()}
 
 
-DEFAULT_BASE_UNIT = "BCH"
-base_units = {'BCH':8, 'mBCH':5, 'bits':2}
+DEFAULT_BASE_UNIT = "RAD"
+base_units = {'RAD':8, 'mRAD':5, 'bits':2}
 
 inv_base_units = {}
 base_unit_labels = tuple()
@@ -471,14 +471,14 @@ def user_dir(prefer_local=False):
     if 'ANDROID_DATA' in os.environ:
         return android_data_dir()
     elif os.name == 'posix' and "HOME" in os.environ:
-        return os.path.join(os.environ["HOME"], ".electron-cash" )
+        return os.path.join(os.environ["HOME"], ".electron-radiant" )
     elif "APPDATA" in os.environ or "LOCALAPPDATA" in os.environ:
         app_dir = os.environ.get("APPDATA")
         localapp_dir = os.environ.get("LOCALAPPDATA")
         # Prefer APPDATA, but may get LOCALAPPDATA if present and req'd.
         if localapp_dir is not None and prefer_local or app_dir is None:
             app_dir = localapp_dir
-        return os.path.join(app_dir, "ElectronCash")
+        return os.path.join(app_dir, "ElectronRadiant")
     else:
         #raise Exception("No home directory found in environment variables.")
         return

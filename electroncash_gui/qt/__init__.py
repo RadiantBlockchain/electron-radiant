@@ -913,7 +913,7 @@ class ElectrumGui(QObject, PrintError):
                 self.tray.showMessage("Electron Cash", message, QSystemTrayIcon.Information, 20000)
 
     def is_cashaddr(self):
-        return bool(self.config.get('show_cashaddr', True))
+        return bool(self.config.get('show_cashaddr', False))
 
     def toggle_cashaddr(self, on = None):
         was = self.is_cashaddr()

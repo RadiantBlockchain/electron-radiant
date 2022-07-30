@@ -10,6 +10,7 @@ python-dateutil<2.9
 stem>=1.8.0
 certifi
 pathvalidate
+pycryptodome
 
 # Note that we also need the dnspython[DNSSEC] extra which pulls in cryptography,
 # but as that is not pure-python it cannot be listed in this file!

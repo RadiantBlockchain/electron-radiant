@@ -1760,7 +1760,7 @@ class Network(util.DaemonThread):
                                   .format(networks.net.VERIFICATION_BLOCK_MERKLE_ROOT, merkle_root))
             return False
 
-        header_hash = Hash(bfh(header))
+        header_hash = RadiantHash(bfh(header))
         byte_branches = [bfh(v)[::-1] for v in merkle_branch]
         proven_merkle_root = blockchain.root_from_proof(header_hash, byte_branches, header_height)
         if proven_merkle_root != expected_merkle_root:

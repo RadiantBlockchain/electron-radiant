@@ -688,6 +688,13 @@ class Transaction:
         s += script
         return s
 
+    def serialize_hash_output(self, output):
+        output_type, addr, amount = output
+        s = int_to_hex(amount, 8)
+        s += bh2u(Hash(addr.to_script()))
+        s += "000000000000000000000000000000000000000000000000000000000000000000000000"
+        return s
+
     @classmethod
     def nHashType(cls):
         '''Hash type in hex.'''
@@ -715,7 +722,7 @@ class Transaction:
         takes only O(N + M) with the cache, as opposed to O(N^2 + NM) without
         the cache.
 
-        Returns three 32-long bytes objects: (hashPrevouts, hashSequence, hashOutputs).
+        Returns four 32-long bytes objects: (hashPrevouts, hashSequence, hashOutputHashes, hashOutputs).
 
         Warning: If you modify non-signature parts of the transaction
         afterwards, this cache will be wrong! """
@@ -738,9 +745,10 @@ class Transaction:
 
         hashPrevouts = Hash(bfh(''.join(self.serialize_outpoint(txin) for txin in inputs)))
         hashSequence = Hash(bfh(''.join(int_to_hex(txin.get('sequence', 0xffffffff - 1), 4) for txin in inputs)))
+        hashOutputHashes = Hash(bfh(''.join(self.serialize_hash_output(o) for o in outputs)))
         hashOutputs = Hash(bfh(''.join(self.serialize_output(o) for o in outputs)))
 
-        res = hashPrevouts, hashSequence, hashOutputs
+        res = hashPrevouts, hashSequence, hashOutputHashes, hashOutputs
         # cach resulting value, along with some minimal metadata to defensively
         # program against cache invalidation (due to class mutation).
         self._cached_sighash_tup = meta, res
@@ -765,9 +773,9 @@ class Transaction:
             raise InputValueMissing
         nSequence = int_to_hex(txin.get('sequence', 0xffffffff - 1), 4)
 
-        hashPrevouts, hashSequence, hashOutputs = self.calc_common_sighash(use_cache = use_cache)
+        hashPrevouts, hashSequence, hashOutputHashes, hashOutputs = self.calc_common_sighash(use_cache = use_cache)
 
-        preimage = nVersion + bh2u(hashPrevouts) + bh2u(hashSequence) + outpoint + scriptCode + amount + nSequence + bh2u(hashOutputs) + nLocktime + nHashType
+        preimage = nVersion + bh2u(hashPrevouts) + bh2u(hashSequence) + outpoint + scriptCode + amount + nSequence + bh2u(hashOutputHashes) + bh2u(hashOutputs) + nLocktime + nHashType
         return preimage
 
 
