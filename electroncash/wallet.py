@@ -2006,11 +2006,11 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             outputs[i_max] = (_type, data, amount)
             tx = Transaction.from_io(inputs, outputs, sign_schnorr=sign_schnorr)
 
-        # If user tries to send too big of a fee (more than 50 sat/byte), stop them from shooting themselves in the foot
+        # If user tries to send too big of a fee (more than 50000 sat/byte), stop them from shooting themselves in the foot
         tx_in_bytes=tx.estimated_size()
         fee_in_satoshis=tx.get_fee()
         sats_per_byte=fee_in_satoshis/tx_in_bytes
-        if (sats_per_byte > 50):
+        if (sats_per_byte > 50000):
             raise ExcessiveFee()
 
         # Sort the inputs and outputs deterministically
