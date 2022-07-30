@@ -2693,40 +2693,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
     def is_schnorr_enabled(self) -> bool:
         ''' Returns whether schnorr is enabled AND possible for this wallet.
         Schnorr is enabled per-wallet. '''
-        if not self.is_schnorr_possible():
-            # Short-circuit out of here -- it's not even possible with this
-            # wallet type.
-            return False
-        ss_cfg = self.storage.get('sign_schnorr', None)
-        if ss_cfg is None:
-            # Schnorr was not set in config; figure out intelligent defaults,
-            # preferring Schnorr if it's at least as fast as ECDSA (based on
-            # which libs user has installed). Note for watching-only we default
-            # to off if unspecified regardless, to not break compatibility
-            # with air-gapped signing systems that have older EC installed
-            # on the signing system. This is to avoid underpaying fees if
-            # signing system doesn't use Schnorr.  We can turn on default
-            # Schnorr on watching-only sometime in the future after enough
-            # time has passed that air-gapped systems are unlikely to not
-            # have Schnorr enabled by default.
-            # TO DO: Finish refactor of txn serialized format to handle this
-            # case better!
-            if (not self.is_watching_only()
-                    and (schnorr.has_fast_sign()
-                         or not ecc_fast.is_using_fast_ecc())):
-                # Prefer Schnorr, all things being equal.
-                # - If not watching-only & schnorr possible AND
-                # - Either Schnorr is fast sign (native, ABC's secp256k1),
-                #   so use it by default
-                # - Or both ECDSA & Schnorr are slow (non-native);
-                #   so use Schnorr in that case as well
-                ss_cfg = 2
-            else:
-                # This branch is reached if Schnorr is slow but ECDSA is fast
-                # (core's secp256k1 lib was found which lacks Schnorr) -- so we
-                # default it to off. Also if watching only we default off.
-                ss_cfg = 0
-        return bool(ss_cfg)
+        return False
 
     def set_schnorr_enabled(self, b: bool):
         ''' Enable schnorr for this wallet. Note that if Schnorr is not possible,
