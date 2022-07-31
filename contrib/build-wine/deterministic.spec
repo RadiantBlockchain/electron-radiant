@@ -10,7 +10,7 @@ for i, x in enumerate(sys.argv):
 else:
     raise BaseException('no name')
 
-home = 'C:\\electroncash\\'
+home = 'C:\\electronradiant\\'
 
 # see https://github.com/pyinstaller/pyinstaller/issues/2005
 hiddenimports = []
@@ -138,7 +138,7 @@ exe_standalone = EXE(
     a.scripts,
     a.binaries,
     a.datas,
-    name=os.path.join('build\\pyi.win32\\electroncash', cmdline_name + ".exe"),
+    name=os.path.join('build\\pyi.win32\\electronradiant', cmdline_name + ".exe"),
     debug=False,
     strip=None,
     upx=False,
@@ -151,7 +151,7 @@ exe_portable = EXE(
     a.scripts,
     a.binaries,
     a.datas + [ ('is_portable', 'README.md', 'DATA' ) ],
-    name=os.path.join('build\\pyi.win32\\electroncash', cmdline_name + "-portable.exe"),
+    name=os.path.join('build\\pyi.win32\\electronradiant', cmdline_name + "-portable.exe"),
     debug=False,
     strip=None,
     upx=False,
@@ -166,7 +166,7 @@ exe_dependent = EXE(
     pyz,
     a.scripts,
     exclude_binaries=True,
-    name=os.path.join('build\\pyi.win32\\electroncash', cmdline_name),
+    name=os.path.join('build\\pyi.win32\\electronradiant', cmdline_name),
     debug=False,
     strip=None,
     upx=False,
@@ -184,4 +184,4 @@ coll = COLLECT(
     debug=False,
     icon=home+'icons/electron.ico',
     console=False,
-    name=os.path.join('dist', 'electroncash'))
+    name=os.path.join('dist', 'electronradiant'))
