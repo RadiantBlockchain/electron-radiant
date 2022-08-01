@@ -4621,20 +4621,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         legacy_p2sh_cb.stateChanged.connect(on_legacy_p2sh_cb)
         global_tx_widgets.append((legacy_p2sh_cb, None))
 
-        # Schnorr
-        use_schnorr_cb = QCheckBox(_("Sign with Schnorr signatures"))
-        use_schnorr_cb.setChecked(self.wallet.is_schnorr_enabled())
-        use_schnorr_cb.stateChanged.connect(self.wallet.set_schnorr_enabled)
-        no_schnorr_reason = []
-        if self.wallet.is_schnorr_possible(no_schnorr_reason):
-            use_schnorr_cb.setEnabled(True)
-            use_schnorr_cb.setToolTip(_("Sign all transactions using Schnorr signatures."))
-        else:
-            # not possible (wallet type not supported); show reason in tooltip
-            use_schnorr_cb.setEnabled(False)
-            use_schnorr_cb.setToolTip(no_schnorr_reason[0])
-        per_wallet_tx_widgets.append((use_schnorr_cb, None))
-
         # Retire old change addresses
         limit_change_w = QWidget()
         vb = QVBoxLayout(limit_change_w)
