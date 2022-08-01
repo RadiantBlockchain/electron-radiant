@@ -38,69 +38,36 @@ from . import cashacct
 from .i18n import _
 
 
-DEFAULT_EXPLORER = "Blockchair.com"
+DEFAULT_EXPLORER = "radiantblockchain.org"
 
 mainnet_block_explorers = {
-    'Blockchair.com': ('https://blockchair.com/bitcoin-cash',
-                       Address.FMT_CASHADDR,
-                       {'tx': 'transaction', 'addr': 'address', 'block' : 'block'}),
-    'BTC.com': ('https://bch.btc.com',
-                       Address.FMT_CASHADDR,
-                       {'tx': '', 'addr': '', 'block' : 'block'}),
-    'ViaBTC.com': ('https://explorer.viawallet.com/bch',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block' : 'block'}),
-    'BlockExplorer.one': ('https://blockexplorer.one/bch/mainnet',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block' : 'blockHash'}),
-    'electroncash.de': ('https://explorer.electroncash.de',
-                        Address.FMT_CASHADDR,
-                        {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
-    'Blockchain.com': ('https://www.blockchain.com/bch',
-                       Address.FMT_CASHADDR,
-                       {'tx': 'tx', 'addr': 'address', 'block': 'block'}),
-    'Bitcoin Unlimited': ('https://explorer.bitcoinunlimited.info',
-                          Address.FMT_CASHADDR,
-                          {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
-    'Loping.net': ('https://bch.loping.net',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantblockchain.org': ('https://explorer.radiantblockchain.org',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
 
-DEFAULT_EXPLORER_TESTNET = 'Blockchain.com'
+DEFAULT_EXPLORER_TESTNET = 'radiantblockchain.org'
 
 testnet_block_explorers = {
-    'BlockExplorer.one': ('https://blockexplorer.one/bch/testnet',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block' : 'blockHash'}),
-    'electroncash.de': ('https://testnet-explorer.electroncash.de',
-                        Address.FMT_CASHADDR,
-                        {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
-    'Blockchain.com': ('https://www.blockchain.com/bch-testnet',
-                       Address.FMT_CASHADDR,
-                       {'tx': 'tx', 'addr': 'address', 'block': 'block'}),
-    'Bitcoin Unlimited': ('https://texplorer.bitcoinunlimited.info',
-                          Address.FMT_CASHADDR,
-                          {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
-    'Loping.net': ('https://tbch.loping.net',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantblockchain.org': ('https://explorer-testnet.radiantblockchain.org',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
 
-DEFAULT_EXPLORER_TESTNET4 = 'Loping.net'
+DEFAULT_EXPLORER_TESTNET4 = 'radiantblockchain.org'
 
 testnet4_block_explorers = {
-    'Loping.net': ('https://tbch4.loping.net',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantblockchain.org': ('https://explorer-testnet.radiantblockchain.org',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
 
-DEFAULT_EXPLORER_SCALENET = 'Loping.net'
+DEFAULT_EXPLORER_SCALENET = 'radiantblockchain.org'
 
 scalenet_block_explorers = {
-    'Loping.net': ('https://sbch.loping.net',
-                   Address.FMT_CASHADDR,
-                   {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantblockchain.org': ('https://explorer-testnet.radiantblockchain.org',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
 
 
