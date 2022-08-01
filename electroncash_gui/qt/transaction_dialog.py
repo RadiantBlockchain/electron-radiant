@@ -89,7 +89,6 @@ class TxDialog(QDialog, MessageBoxMixin, PrintError):
         self.prompt_if_unsaved = prompt_if_unsaved
         self.saved = False
         self.desc = desc
-        self.cashaddr_signal_slots = []
         self._dl_pct = None
         self._closed = False
         self.tx_hash = self.tx.txid_fast() if self.tx.raw and self.tx.is_complete() else None
@@ -322,10 +321,6 @@ class TxDialog(QDialog, MessageBoxMixin, PrintError):
                 except TypeError: pass
                 try: parent.labels_updated_signal.disconnect(self.update_tx_if_in_wallet)
                 except TypeError: pass
-                for slot in self.cashaddr_signal_slots:
-                    try: parent.gui_object.cashaddr_toggled_signal.disconnect(slot)
-                    except TypeError: pass
-                self.cashaddr_signal_slots = []
 
             cls = self.__class__
             cls._pyqt_bug_gc_workaround = self  # <--- keep this object alive in PyQt until at least after this
@@ -605,8 +600,6 @@ class TxDialog(QDialog, MessageBoxMixin, PrintError):
         o_text.setReadOnly(True)
         o_text.setTextInteractionFlags(o_text.textInteractionFlags() | Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
         vbox.addWidget(o_text)
-        self.cashaddr_signal_slots.append(self.update_io)
-        self.main_window.gui_object.cashaddr_toggled_signal.connect(self.update_io)
         self.update_io()
 
     def update_io(self):

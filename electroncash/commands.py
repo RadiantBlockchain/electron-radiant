@@ -159,20 +159,6 @@ class Commands:
         return d
 
     @command('')
-    def addressconvert(self, address):
-        """Convert to/from Legacy <-> Cash Address.  Address can be either
-        a legacy or a Cash Address and both forms will be returned as a JSON
-        dict."""
-        try:
-            addr = Address.from_string(address)
-        except Exception as e:
-            raise AddressError(f'Invalid address: {address}') from e
-        return {
-            'cashaddr' : addr.to_full_string(Address.FMT_CASHADDR),
-            'legacy'   : addr.to_full_string(Address.FMT_LEGACY),
-        }
-
-    @command('')
     def commands(self):
         """List of commands"""
         return ' '.join(sorted(known_commands.keys()))

@@ -69,7 +69,6 @@ class AddressList(MyTreeWidget):
         self._ca_cb_registered = False
         self._ca_minimal_chash_updated_signal.connect(self._ca_update_chash)
 
-        self.parent.gui_object.cashaddr_toggled_signal.connect(self.update)
         self.parent.ca_address_default_changed_signal.connect(self._ca_on_address_default_change)
 
         if not __class__._cashacct_icon:
@@ -82,8 +81,6 @@ class AddressList(MyTreeWidget):
             self.wallet.network.unregister_callback(self._ca_updated_minimal_chash_callback)
             self._ca_cb_registered = False
         # paranoia -- we have seen Qt not clean up the signal before the object is destroyed on Python 3.7.3 PyQt 5.12.3, see #1531
-        try: self.parent.gui_object.cashaddr_toggled_signal.disconnect(self.update)
-        except TypeError: pass
         try: self.parent.ca_address_default_changed_signal.disconnect(self._ca_on_address_default_change)
         except TypeError: pass
 
@@ -300,19 +297,11 @@ class AddressList(MyTreeWidget):
                 return
             addr = addrs[0]
 
-            alt_copy_text, alt_column_title = None, None
             if col == 0:
                 copy_text = addr.to_full_ui_string()
-                if Address.FMT_UI == Address.FMT_LEGACY:
-                    alt_copy_text, alt_column_title = addr.to_full_string(Address.FMT_CASHADDR), _('Cash Address')
-                else:
-                    alt_copy_text, alt_column_title = addr.to_full_string(Address.FMT_LEGACY), _('Legacy Address')
             else:
                 copy_text = item.text(col)
             menu.addAction(_("Copy {}").format(column_title), lambda: doCopy(copy_text))
-            if alt_copy_text and alt_column_title:
-                # Add 'Copy Legacy Address' and 'Copy Cash Address' alternates if right-click is on column 0
-                menu.addAction(_("Copy {}").format(alt_column_title), lambda: doCopy(alt_copy_text))
             a = menu.addAction(_('Details') + "...", lambda: self.parent.show_address(addr))
             if col == 0:
                 where_to_insert_dupe_copy_cash_account = a
