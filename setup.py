@@ -25,7 +25,7 @@ with open('contrib/requirements/requirements-web3.txt') as f:
 version = imp.load_source('version', 'electroncash/version.py')
 
 if sys.version_info[:3] < (3, 6):
-    sys.exit("Error: Electron Cash requires Python version >= 3.6...")
+    sys.exit("Error: Electron Radiant requires Python version >= 3.6...")
 
 data_files = []
 
@@ -144,7 +144,7 @@ setup(
     cmdclass={
         'sdist': MakeAllBeforeSdist,
     },
-    name=os.environ.get('EC_PACKAGE_NAME') or "Electron Cash",
+    name=os.environ.get('EC_PACKAGE_NAME') or "Electron Radiant",
     version=os.environ.get('EC_PACKAGE_VERSION') or version.PACKAGE_VERSION,
     install_requires=requirements,
     extras_require={
