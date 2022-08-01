@@ -4611,16 +4611,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         opret_cb.stateChanged.connect(self.on_toggled_opreturn)
         global_tx_widgets.append((opret_cb,None))
 
-        # Legacy BCT Segwit Send Protection™
-        legacy_p2sh_cb = QCheckBox(_('Allow legacy p2sh in the Send tab'))
-        prefix_char = '3' if not networks.net.TESTNET else '2'
-        legacy_p2sh_cb.setToolTip(_('If enabled, you will be allowed to use legacy \'{prefix_char}...\' style addresses in the Send tab.\nOtherwise you must use CashAddr for p2sh in the UI.').format(prefix_char=prefix_char))
-        legacy_p2sh_cb.setChecked(bool(self.config.get('allow_legacy_p2sh', False)))
-        def on_legacy_p2sh_cb(b):
-            self.config.set_key('allow_legacy_p2sh', bool(b))
-        legacy_p2sh_cb.stateChanged.connect(on_legacy_p2sh_cb)
-        global_tx_widgets.append((legacy_p2sh_cb, None))
-
         # Retire old change addresses
         limit_change_w = QWidget()
         vb = QVBoxLayout(limit_change_w)
