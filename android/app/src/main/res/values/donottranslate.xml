@@ -19,7 +19,7 @@
     <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
         eiusmod</string>
 
-    <string name="default_bip39_derivation">m/44\'/145\'/0\'</string>
+    <string name="default_bip39_derivation">m/44\'/0\'/0\'</string>
 
     <!-- See electroncash/paymentrequest.py. -->
     <string-array name="payment_status">

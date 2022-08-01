@@ -7,10 +7,10 @@
 ;--------------------------------
 ;Variables
 
-  !define PRODUCT_NAME "Electron Cash"
-  !define INTERNAL_NAME "Electron-Cash"
-  !define PRODUCT_WEB_SITE "https://github.com/Electron-Cash/Electron-Cash"
-  !define PRODUCT_PUBLISHER "Electron Cash LLC"
+  !define PRODUCT_NAME "Electron Radiant"
+  !define INTERNAL_NAME "Electron-Radiant"
+  !define PRODUCT_WEB_SITE "https://github.com/RadiantBlockchain/electron-radiant"
+  !define PRODUCT_PUBLISHER ""
   !define INSTDIR_REG_ROOT "HKCU"
   !define INSTDIR_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
@@ -87,7 +87,7 @@
   !define MUI_ABORTWARNING
   !define MUI_ABORTWARNING_TEXT "Are you sure you wish to abort the installation of ${PRODUCT_NAME}?"
 
-  !define MUI_ICON "\electroncash\icons\electron.ico"
+  !define MUI_ICON "\electronradiant\icons\electron.ico"
 
 ;--------------------------------
 ;Pages
@@ -169,7 +169,7 @@ Section
   !insertmacro UNINSTALL.LOG_OPEN_INSTALL
 
   ;Files to pack into the installer
-  File /r "dist\electroncash\*.*"
+  File /r "dist\electronradiant\*.*"
   File "..\..\icons\electron.ico"
 
   !insertmacro UNINSTALL.LOG_CLOSE_INSTALL
@@ -198,15 +198,15 @@ Section
 
 
   ;Links bitcoincash: URI's to Electron Cash
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "" "URL:bitcoincash Protocol"
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "URL Protocol" ""
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "DefaultIcon" "$\"$INSTDIR\electron.ico, 0$\""
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash\shell\open\command" "" "$\"$INSTDIR\${INTERNAL_NAME}.exe$\" $\"%1$\""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "" "URL:bitcoincash Protocol"
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "URL Protocol" ""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash" "DefaultIcon" "$\"$INSTDIR\electron.ico, 0$\""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\bitcoincash\shell\open\command" "" "$\"$INSTDIR\${INTERNAL_NAME}.exe$\" $\"%1$\""
   ;Links cashacct: URI's to Electron Cash
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "" "URL:cashacct Protocol"
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "URL Protocol" ""
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "DefaultIcon" "$\"$INSTDIR\electron.ico, 0$\""
-  WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct\shell\open\command" "" "$\"$INSTDIR\${INTERNAL_NAME}.exe$\" $\"%1$\""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "" "URL:cashacct Protocol"
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "URL Protocol" ""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct" "DefaultIcon" "$\"$INSTDIR\electron.ico, 0$\""
+  ;WriteRegStr ${INSTDIR_REG_ROOT} "Software\Classes\cashacct\shell\open\command" "" "$\"$INSTDIR\${INTERNAL_NAME}.exe$\" $\"%1$\""
 
   ;Adds an uninstaller possibilty to Windows Uninstall or change a program section
   WriteRegStr ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" "DisplayName" "$(^Name)"

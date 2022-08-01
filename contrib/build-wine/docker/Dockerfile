@@ -1,10 +1,10 @@
-FROM ubuntu:21.10@sha256:74fd1c59ac5d29527f56a9ac22753571ce4c40a301d083a56d963bde98a7dfdc
+FROM ubuntu:18.04@sha256:2aeed98f2fa91c365730dc5d70d18e95e8d53ad4f1bbf4269c3bb625060383f0
 
 ARG UBUNTU_MIRROR=http://archive.ubuntu.com/ubuntu/
 
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 
-ENV UBUNTUDIST=impish
+ENV UBUNTUDIST=bionic
 
 # This prevents questions during package installations
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,20 +16,21 @@ RUN echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST} main restricted universe multiverse 
     dpkg --add-architecture i386 && \
     apt-get update -q && \
     apt-get install -qy \
-        gnupg2=2.2.20-1ubuntu4 \
-        ca-certificates=20210119ubuntu1 \
-        wget=1.21-1ubuntu3 \
-        git=1:2.32.0-1ubuntu1 \
-        p7zip-full=16.02+dfsg-8 \
-        make=4.3-4ubuntu1 \
-        autotools-dev=20180224.1+nmu1 \
-        autoconf=2.69-14 \
-        libtool=2.4.6-15 \
-        gettext=0.21-4ubuntu3 \
-        autopoint=0.21-4ubuntu3 \
-        mingw-w64=8.0.0-1 \
-        mingw-w64-tools=8.0.0-1 \
-        win-iconv-mingw-w64-dev=0.0.8-4
+        gnupg2=2.2.4-1ubuntu1.6 \
+        ca-certificates=20211016~18.04.1 \
+        wget=1.19.4-1ubuntu2.2 \
+        git=1:2.17.1-1ubuntu0.12 \
+        p7zip-full=16.02+dfsg-6 \
+        make=4.1-9.1ubuntu1 \
+        autotools-dev=20180224.1 \
+        autoconf=2.69-11 \
+        libtool=2.4.6-2 \
+        gettext=0.19.8.1-6ubuntu0.3 \
+        autopoint=0.19.8.1-6ubuntu0.3 \
+        mingw-w64=5.0.3-1 \
+        mingw-w64-tools=5.0.3-1 \
+        win-iconv-mingw-w64-dev=0.0.8-2 \
+        python3-software-properties=0.96.24.32.14
 
 # Official WineHQ signing key
 # See https://wiki.winehq.org/Ubuntu
@@ -49,11 +50,11 @@ RUN echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 /tmp/
         wine-${WINEDIST}:amd64=${WINEVERSION} \
         winehq-${WINEDIST}:amd64=${WINEVERSION} \
         # cabextract is needed for winetricks to install the .NET framework
-        cabextract=1.9-3 \
+        cabextract=1.6-1.1 \
         # xvfb is needed to launch the Visual Studio installer
-        xvfb=2:1.20.13-1ubuntu1.1 \
+        xvfb=2:1.19.6-1ubuntu4.11 \
         # winbind is needed for the Visual Studio installer and cl.exe PDB generation
-        winbind=2:4.13.17~dfsg-0ubuntu0.21.10.1
+        winbind=2:4.7.6+dfsg~ubuntu-0ubuntu2.28
 
 RUN rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
@@ -71,7 +72,7 @@ ENV WINEARCH=win32
 ENV WINEPREFIX=${HOME}/wine
 ENV WINEDEBUG=-all
 
-RUN mkdir -p ${WINEPREFIX}/drive_c/electroncash ; chown -R ${USER_ID}:${GROUP_ID} ${HOME}
+RUN mkdir -p ${WINEPREFIX}/drive_c/electronradiant ; chown -R ${USER_ID}:${GROUP_ID} ${HOME}
 
 # Make our UID/GID have an actual user name, this is needed so wineboot creates the right folders and
 # the Visual Studio installer does't fail in SHGetKnownFolderPath with error 0x80070003 (ERROR_PATH_NOT_FOUND).

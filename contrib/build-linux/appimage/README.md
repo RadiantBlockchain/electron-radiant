@@ -1,4 +1,4 @@
-AppImage binary for Electron Cash
+AppImage binary for Electron Radiant
 ============================
 
 ✓ _This binary is reproducible: you should be able to generate
@@ -29,4 +29,4 @@ folder.
 ## FAQ
 
 ### How can I see what is included in the AppImage?
-Execute the binary as follows: `./Electron-Cash*.AppImage --appimage-extract`
+Execute the binary as follows: `./Electron-Radiant*.AppImage --appimage-extract`

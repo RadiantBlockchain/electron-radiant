@@ -284,7 +284,7 @@ class BaseWizard(util.PrintError):
             # This is partially compatible with BIP45; assumes index=0
             default_derivation = "m/45'/0"
         else:
-            default_derivation = keystore.bip44_derivation_145(0)
+            default_derivation = keystore.bip44_derivation(0)
         self.derivation_dialog(f, default_derivation)
 
     def derivation_dialog(self, f, default_derivation, seed=''):
@@ -292,7 +292,6 @@ class BaseWizard(util.PrintError):
             _('Enter your wallet derivation here.'),
             _('If you are not sure what this is, leave this field unchanged.'),
             _("If you want the wallet to use legacy Bitcoin addresses use m/44'/0'/0'"),
-            _("If you want the wallet to use Bitcoin Cash addresses use m/44'/145'/0'"),
             _("The placeholder value of {} is the default derivation for {} wallets.").format(default_derivation, self.wallet_type),
         ])
         scannable = self.wallet_type == "standard" and bool(seed)
@@ -354,7 +353,7 @@ class BaseWizard(util.PrintError):
 
     def on_restore_bip39(self, seed, passphrase):
         f = lambda x: self.run('on_bip44', seed, passphrase, str(x))
-        self.derivation_dialog(f, keystore.bip44_derivation_145(0), seed)
+        self.derivation_dialog(f, keystore.bip44_derivation(0), seed)
 
     def create_keystore(self, seed, passphrase):
         # auto-detect, prefers old, electrum, bip39 in that order. Since we

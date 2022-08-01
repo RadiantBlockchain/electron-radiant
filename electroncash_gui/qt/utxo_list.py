@@ -63,7 +63,6 @@ class UTXOList(MyTreeWidget):
         self.setSortingEnabled(True)
         self.wallet = self.parent.wallet
         self.parent.ca_address_default_changed_signal.connect(self._ca_on_address_default_change)
-        self.parent.gui_object.cashaddr_toggled_signal.connect(self.update)
         self.utxos = list()
         # cache some values to avoid constructing Qt objects for every pass through self.on_update (this is important for large wallets)
         self.monospaceFont = QFont(MONOSPACE_FONT)
@@ -79,8 +78,6 @@ class UTXOList(MyTreeWidget):
     def clean_up(self):
         self.cleaned_up = True
         try: self.parent.ca_address_default_changed_signal.disconnect(self._ca_on_address_default_change)
-        except TypeError: pass
-        try: self.parent.gui_object.cashaddr_toggled_signal.disconnect(self.update)
         except TypeError: pass
 
     def if_not_dead(func):
@@ -234,19 +231,13 @@ class UTXOList(MyTreeWidget):
 
                 col = self.currentColumn()
                 column_title = self.headerItem().text(col)
-                alt_column_title, alt_copy_text = None, None
                 slp_token = item.data(0, self.DataRoles.slp_token)
                 ca_info = None
                 if col == self.Col.output_point:
                     copy_text = item.data(0, self.DataRoles.name)
                 elif col == self.Col.address:
                     addr = item.data(0, self.DataRoles.address)
-                    # Determine the "alt copy text" "Legacy Address" or "Cash Address"
                     copy_text = addr.to_full_ui_string()
-                    if Address.FMT_UI == Address.FMT_LEGACY:
-                        alt_copy_text, alt_column_title = addr.to_full_string(Address.FMT_CASHADDR), _('Cash Address')
-                    else:
-                        alt_copy_text, alt_column_title = addr.to_full_string(Address.FMT_LEGACY), _('Legacy Address')
                     ca_info = item.data(0, self.DataRoles.cash_account)  # may be None
                     del addr
                 else:
@@ -254,8 +245,6 @@ class UTXOList(MyTreeWidget):
                 if copy_text:
                     copy_text = copy_text.strip()  # make sure formatted amount is not whitespaced
                 menu.addAction(_("Copy {}").format(column_title), lambda: QApplication.instance().clipboard().setText(copy_text))
-                if alt_copy_text and alt_column_title:
-                    menu.addAction(_("Copy {}").format(alt_column_title), lambda: QApplication.instance().clipboard().setText(alt_copy_text))
                 if ca_info:
                     self.wallet.cashacct.fmt_info(ca_info)  # paranoia: pre-cache minimal chash (may go out to network)
                     menu.addAction(_("Copy Cash Account"), lambda: self.wallet and QApplication.instance().clipboard().setText(self.wallet.cashacct.fmt_info(ca_info, emoji=True)))
