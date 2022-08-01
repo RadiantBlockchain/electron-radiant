@@ -746,9 +746,6 @@ def bip44_derivation(account_id):
     coin = 1 if networks.net.TESTNET else 0
     return "m/%d'/%d'/%d'" % (bip, coin, int(account_id))
 
-def bip44_derivation_145(account_id):
-	return "m/44'/145'/%d'"% int(account_id)
-
 def bip39_normalize_passphrase(passphrase):
     """ This is called by some plugins """
     return Mnemonic.normalize_text(passphrase or '', is_passphrase=True)
@@ -779,7 +776,7 @@ def from_seed(seed, passphrase, is_p2sh=None, *, seed_type='', derivation=None) 
         keystore.passphrase = passphrase
         bip32_seed = Mnemonic.mnemonic_to_seed(seed, passphrase)
         xtype = 'standard'  # bip43
-        derivation = derivation or bip44_derivation_145(0)
+        derivation = derivation or bip44_derivation(0)
         keystore.add_xprv_from_seed(bip32_seed, xtype, derivation)
     else:
         raise InvalidSeed()
