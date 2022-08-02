@@ -177,9 +177,7 @@ setup(
         'electroncash_plugins.trezor',
         'electroncash_plugins.digitalbitbox',
         'electroncash_plugins.virtualkeyboard',
-        'electroncash_plugins.shuffle_deprecated',
         'electroncash_plugins.satochip',
-        'electroncash_plugins.fusion',
     ],
     package_data={
         'electroncash': [
@@ -194,12 +192,6 @@ setup(
             'libzbar*',
             'locale/*/LC_MESSAGES/electron-cash.mo',
             'tor/bin/*'
-        ],
-        'electroncash_plugins.shuffle_deprecated': [
-            'servers.json'
-        ],
-        'electroncash_plugins.fusion': [
-            '*.svg', '*.png'
         ],
         # On Linux and Windows this means adding electroncash_gui/qt/data/*.ttf
         # On Darwin we don't use that font, so we don't add it to save space.
