@@ -45,7 +45,7 @@ class Bip38Importer(WindowModalDialog, util.PrintError):
         decrypted or a user cancel.
         '''
         if not title:
-            title = 'Electron Cash - ' + _('BIP38 Import')
+            title = 'Electron Radiant - ' + _('BIP38 Import')
         WindowModalDialog.__init__(self, parent=parent, title=title)
         if not bitcoin.is_bip38_available():
             raise RuntimeError('Bip38Importer: bip38 decoding is not available')

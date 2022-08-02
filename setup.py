@@ -197,7 +197,7 @@ setup(
         # On Darwin we don't use that font, so we don't add it to save space.
         **platform_package_data
     },
-    scripts=['electron-cash'],
+    scripts=['electron-radiant'],
     data_files=data_files,
     description="Lightweight Bitcoin Cash Wallet",
     author="The Electron Cash Developers",

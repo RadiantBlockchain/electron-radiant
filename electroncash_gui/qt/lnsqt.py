@@ -166,7 +166,7 @@ def resolve_lns(parent: MessageBoxMixin, name: str, wallet: Abstract_Wallet = No
         if not isinstance(info.address, Address):
             raise Bad(_("Unsupported payment data type.") + "\n\n"
                       + _("The LNS Name {name} uses an account type that "
-                          "is not supported by Electron Cash.").format(name=name))
+                          "is not supported by Electron Radiant.").format(name=name))
         return info, info.name
     except Bad as e:
         parent.show_error(str(e))

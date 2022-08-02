@@ -70,7 +70,7 @@ def get_fd_or_server(config):
             sys.exit(f"Unable to create lockfile due to file system permission problems: {e}")
         except NotADirectoryError as e:
             lockdir = os.path.dirname(lockfile)
-            sys.exit(f"Electron Cash directory location at {lockdir} is not a directory. Error was: {e}")
+            sys.exit(f"Electron Radiant directory location at {lockdir} is not a directory. Error was: {e}")
         except OSError as e:
             ''' Unable to create -- this is normal if there was a pre-existing lockfile '''
             latest_exc = e
@@ -251,7 +251,7 @@ class Daemon(DaemonThread):
             else:
                 response = "error: current GUI does not support multiple windows"
         else:
-            response = "Error: Electron Cash is running in daemon mode. Please stop the daemon first."
+            response = "Error: Electron Radiant is running in daemon mode. Please stop the daemon first."
         return response
 
     def load_wallet(self, path, password):
