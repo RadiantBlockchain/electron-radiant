@@ -74,7 +74,7 @@ class UpdateChecker(QWidget, PrintError):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Electron Cash - ' + _('Update Checker'))
+        self.setWindowTitle('Electron Radiant - ' + _('Update Checker'))
         self.content = QVBoxLayout()
         self.content.setContentsMargins(*([10]*4))
 
@@ -224,7 +224,7 @@ class UpdateChecker(QWidget, PrintError):
                 self.cancel_or_check_button.setEnabled(False)
             else:
                 self.heading_label.setText('<h2>' + _("Already up to date") + '</h2>')
-                self.detail_label.setText(_("You are already on the latest version of Electron Cash."))
+                self.detail_label.setText(_("You are already on the latest version of Electron Radiant."))
                 self.cancel_or_check_button.setEnabled(True)
         else:
             self.pb.show()
@@ -233,7 +233,7 @@ class UpdateChecker(QWidget, PrintError):
             self.cancel_or_check_button.setEnabled(True)
             self.latest_version_label.setText("")
             self.heading_label.setText('<h2>' + _("Checking for updates...") + '</h2>')
-            self.detail_label.setText(_("Please wait while Electron Cash checks for available updates."))
+            self.detail_label.setText(_("Please wait while Electron Radiant checks for available updates."))
 
     def cancel_active(self):
         if self.active_req:

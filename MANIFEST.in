@@ -1,7 +1,7 @@
 include LICENCE RELEASE-NOTES AUTHORS
 include README.rst
 include electron-cash.conf.sample
-include electron-cash.desktop
+include electron-radiant.desktop
 include *.py
 include electron-cash
 include contrib/requirements/requirements.txt

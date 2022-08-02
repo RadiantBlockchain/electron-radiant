@@ -122,7 +122,7 @@ CFLAGS="-g0" "$python" -m pip install --no-deps --no-warn-script-location --cach
 
 
 info "Copying desktop integration"
-cp -fp "$PROJECT_ROOT/electron-cash.desktop" "$APPDIR/electron-cash.desktop"
+cp -fp "$PROJECT_ROOT/electron-radiant.desktop" "$APPDIR/electron-radiant.desktop"
 cp -fp "$PROJECT_ROOT/icons/electron-cash.png" "$APPDIR/electron-cash.png"
 
 

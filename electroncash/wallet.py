@@ -201,10 +201,7 @@ class Abstract_Wallet(PrintError, SPVDelegate):
         # start_threads. Note: object instantiation should be lightweight here.
         # self.cashacct.load() is called later in this function to load data.
         self.cashacct = cashacct.CashAcct(self)
-        if lns.available:
-            self.lns = lns.LNS(self)
-        else:
-            self.lns = None
+        self.lns = None
         self.slp = slp.WalletData(self)
         finalization_print_error(self.cashacct)  # debug object lifecycle
         finalization_print_error(self.slp)  # debug object lifecycle
