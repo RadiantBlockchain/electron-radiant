@@ -59,9 +59,9 @@ if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
         share_dir = user_share
     data_files += [
         # Menu icon
-        (os.path.join(share_dir, 'icons/hicolor/256x256/apps/'),   ['icons/electron-cash.png']),
-        (os.path.join(share_dir, 'pixmaps/'),                      ['icons/electron-cash.png']),
-        (os.path.join(share_dir, 'icons/hicolor/scaleable/apps/'), ['icons/electron-cash.svg']),
+        (os.path.join(share_dir, 'icons/hicolor/256x256/apps/'),   ['icons/electron-radiant.png']),
+        (os.path.join(share_dir, 'pixmaps/'),                      ['icons/electron-radiant.png']),
+        (os.path.join(share_dir, 'icons/hicolor/scaleable/apps/'), ['icons/electron-radiant.svg']),
         # Menu entry
         (os.path.join(share_dir, 'applications/'), ['electron-radiant.desktop']),
         # App stream (store) metadata

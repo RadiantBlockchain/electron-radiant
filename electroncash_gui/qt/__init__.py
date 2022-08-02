@@ -403,12 +403,12 @@ class ElectrumGui(QObject, PrintError):
             # electron.icns).  However, in .app mode, Qt will not know about
             # this icon and won't be able to use it for e.g. the About dialog.
             # In the latter case the branch below will tell Qt to use
-            # electron-cash.svg as the "window icon".
+            # electron-radiant.svg as the "window icon".
             icon = QIcon("electron.icns") if os.path.exists("electron.icns") else None
         if not icon:
             # Set this on all other platforms (and macOS built .app) as it can
             # only help and never harm, and is always available.
-            icon = QIcon(":icons/electron-cash.svg")
+            icon = QIcon(":icons/electron-radiant.svg")
         if icon:
             self.app.setWindowIcon(icon)
 
@@ -905,7 +905,7 @@ class ElectrumGui(QObject, PrintError):
         if self.tray:
             try:
                 # this requires Qt 5.9
-                self.tray.showMessage("Electron Radiant", message, QIcon(":icons/electron-cash.svg"), 20000)
+                self.tray.showMessage("Electron Radiant", message, QIcon(":icons/electron-radiant.svg"), 20000)
             except TypeError:
                 self.tray.showMessage("Electron Radiant", message, QSystemTrayIcon.Information, 20000)
 

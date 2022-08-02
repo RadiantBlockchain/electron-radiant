@@ -2,8 +2,8 @@
   <qresource prefix="/" >
     <file>icons/cashacct-logo.png</file>
     <file>icons/cashacct-button-darkmode.png</file>
-    <file>icons/electron-cash.svg</file>
-    <file>icons/electron-cash-update.svg</file>
+    <file>icons/electron-radiant.svg</file>
+    <file>icons/electron-radiant-update.svg</file>
     <file>icons/clock1.svg</file>
     <file>icons/clock2.svg</file>
     <file>icons/clock3.svg</file>
