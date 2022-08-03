@@ -751,7 +751,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         help_menu.addAction(_("&About"), self.show_about)
         help_menu.addAction(_("About Qt"), self.app.aboutQt)
         help_menu.addAction(_("&Check for Updates"), lambda: self.gui_object.show_update_checker(self))
-        help_menu.addAction(_("&Official Website"), lambda: webopen("https://electroncash.org"))
+        help_menu.addAction(_("&Official Website"), lambda: webopen("https://github.com/RadiantBlockchain/electron-radiant"))
         help_menu.addSeparator()
         help_menu.addAction(_("Documentation"), lambda: webopen("http://electroncash.readthedocs.io/")).setShortcut(QKeySequence.HelpContents)
         help_menu.addAction(_("&Report Bug..."), self.show_report_bug)
