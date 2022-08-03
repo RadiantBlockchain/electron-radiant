@@ -23,6 +23,6 @@ fi
 
 #export PYTHONPATH="/usr/local/lib/python3.5/site-packages:$PYTHONPATH"
 
-./electron-cash "$@"
+./electron-radiant "$@"
 
 deactivate

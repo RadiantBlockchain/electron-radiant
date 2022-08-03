@@ -619,7 +619,7 @@ def daemon_command(func):
 
     These can then be invoked as:
 
-        ./electron-cash daemon myplugin_action1 arg arg arg ...
+        ./electron-radiant daemon myplugin_action1 arg arg arg ...
 
     Here `config` is *not* the usual global config but also includes the options
     from the command line client:

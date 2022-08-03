@@ -65,7 +65,7 @@ datas += collect_data_files('keepkeylib')
 datas += collect_data_files('mnemonic')  # wordlists used by keepkeylib from lib mnemonic
 
 # We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
-a = Analysis([home+'electron-cash',
+a = Analysis([home+'electron-radiant',
               home+'electroncash_gui/qt/main_window.py',
               home+'electroncash_gui/qt/qrreader/camera_dialog.py',
               home+'electroncash_gui/text.py',
@@ -84,8 +84,6 @@ a = Analysis([home+'electron-cash',
               home+'electroncash_plugins/keepkey/qt.py',
               home+'electroncash_plugins/ledger/qt.py',
               home+'electroncash_plugins/satochip/qt.py',  # Satochip
-              home+'electroncash_plugins/fusion/fusion.py', # CashFusion
-              home+'electroncash_plugins/fusion/qt.py', # CashFusion
               ],
              binaries=binaries,
              datas=datas,

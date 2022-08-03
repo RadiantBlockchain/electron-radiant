@@ -108,7 +108,7 @@ class SimpleConfig(PrintError):
         obsolete_file = os.path.join(path, 'recent_servers')
         if os.path.exists(obsolete_file):
             os.remove(obsolete_file)
-        self.print_error("electron-cash directory", path)
+        self.print_error("electron-radiant directory", path)
         return path
 
     def rename_config_keys(self, config, keypairs, deprecation_warning=False):

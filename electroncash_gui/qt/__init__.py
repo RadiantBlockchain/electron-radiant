@@ -143,7 +143,7 @@ class ElectrumGui(QObject, PrintError):
         # init tray
         self.dark_icon = self.config.get("dark_icon", False)
         self.tray = QSystemTrayIcon(self.tray_icon(), self)
-        self.tray.setToolTip('Electron Cash')
+        self.tray.setToolTip('Electron Radiant')
         self.tray.activated.connect(self.tray_activated)
         self.build_tray_menu()
         self.tray.show()
@@ -207,7 +207,7 @@ class ElectrumGui(QObject, PrintError):
         ret = call_callables
 
         if hasattr(QGuiApplication, 'setDesktopFileName'):
-            QGuiApplication.setDesktopFileName('electron-cash.desktop')
+            QGuiApplication.setDesktopFileName('electron-radiant.desktop')
 
         if self.windows_qt_use_freetype:
             # Use FreeType for font rendering on Windows. This fixes rendering
@@ -403,12 +403,12 @@ class ElectrumGui(QObject, PrintError):
             # electron.icns).  However, in .app mode, Qt will not know about
             # this icon and won't be able to use it for e.g. the About dialog.
             # In the latter case the branch below will tell Qt to use
-            # electron-cash.svg as the "window icon".
+            # electron-radiant.svg as the "window icon".
             icon = QIcon("electron.icns") if os.path.exists("electron.icns") else None
         if not icon:
             # Set this on all other platforms (and macOS built .app) as it can
             # only help and never harm, and is always available.
-            icon = QIcon(":icons/electron-cash.svg")
+            icon = QIcon(":icons/electron-radiant.svg")
         if icon:
             self.app.setWindowIcon(icon)
 
@@ -471,11 +471,11 @@ class ElectrumGui(QObject, PrintError):
 
     def _check_and_warn_qt_version(self):
         if sys.platform == 'linux' and self.qt_version() < (5, 12):
-            msg = _("Electron Cash on Linux requires PyQt5 5.12+.\n\n"
+            msg = _("Electron Radiant on Linux requires PyQt5 5.12+.\n\n"
                     "You have version {version_string} installed.\n\n"
                     "Please upgrade otherwise you may experience "
                     "font rendering issues with emojis and other unicode "
-                    "characters used by Electron Cash.").format(version_string=QT_VERSION_STR)
+                    "characters used by Electron Radiant.").format(version_string=QT_VERSION_STR)
             QMessageBox.warning(None, _("PyQt5 Upgrade Needed"), msg)  # this works even if app is not exec_() yet.
 
 
@@ -511,7 +511,7 @@ class ElectrumGui(QObject, PrintError):
         m.addSeparator()
         m.addAction(_("&Check for updates..."), lambda: self.show_update_checker(None))
         m.addSeparator()
-        m.addAction(_("Exit Electron Cash"), self.close)
+        m.addAction(_("Exit Electron Radiant"), self.close)
         self.tray.setContextMenu(m)
 
     def tray_icon(self):
@@ -730,7 +730,7 @@ class ElectrumGui(QObject, PrintError):
         to the system tray. '''
         self.new_version_available = newver
         self.update_available_signal.emit(True)
-        self.notify(_("A new version of Electron Cash is available: {}").format(newver))
+        self.notify(_("A new version of Electron Radiant is available: {}").format(newver))
 
     def show_update_checker(self, parent, *, skip_check = False):
         if self.warn_if_no_network(parent):
@@ -782,7 +782,7 @@ class ElectrumGui(QObject, PrintError):
 
     def warn_if_no_network(self, parent):
         if not self.daemon.network:
-            self.warning(message=_('You are using Electron Cash in offline mode; restart Electron Cash if you want to get connected'), title=_('Offline'), parent=parent, rich_text=True)
+            self.warning(message=_('You are using Electron Radiant in offline mode; restart Electron Radiant if you want to get connected'), title=_('Offline'), parent=parent, rich_text=True)
             return True
         return False
 
@@ -816,7 +816,7 @@ class ElectrumGui(QObject, PrintError):
         </body></html>
         '''
         msg = template.format(
-            message = message or _("Electron Cash was unable to find the secp256k1 library on this system. Elliptic curve cryptography operations will be performed in slow Python-only mode."),
+            message = message or _("Electron Radiant was unable to find the secp256k1 library on this system. Elliptic curve cryptography operations will be performed in slow Python-only mode."),
             url=howto_url,
             url_blurb = _("Please visit this page for instructions on how to correct the situation:")
         )
@@ -865,11 +865,11 @@ class ElectrumGui(QObject, PrintError):
             # the future -- it only appears on first-run if key was None
             self.config.set_key('qt_enable_highdpi', True)
             if is_lin:
-                msg = (_("Automatic high DPI scaling has been enabled for Electron Cash, which should result in improved graphics quality.")
+                msg = (_("Automatic high DPI scaling has been enabled for Electron Radiant, which should result in improved graphics quality.")
                        + "\n\n" + _("However, on some esoteric Linux systems, this mode may cause disproportionately large status bar icons.")
                        + "\n\n" + _("If that is the case for you, then you may disable automatic DPI scaling in the preferences, under 'General'."))
             else: # is_win
-                msg = (_("Automatic high DPI scaling has been enabled for Electron Cash, which should result in improved graphics quality.")
+                msg = (_("Automatic high DPI scaling has been enabled for Electron Radiant, which should result in improved graphics quality.")
                        + "\n\n" + _("However, on some Windows systems, bugs in Qt may result in minor graphics glitches in system 'message box' dialogs.")
                        + "\n\n" + _("If that is the case for you, then you may disable automatic DPI scaling in the preferences, under 'General'."))
             parent.show_message( title = _('Automatic High DPI'), msg = msg)
@@ -905,9 +905,9 @@ class ElectrumGui(QObject, PrintError):
         if self.tray:
             try:
                 # this requires Qt 5.9
-                self.tray.showMessage("Electron Cash", message, QIcon(":icons/electron-cash.svg"), 20000)
+                self.tray.showMessage("Electron Radiant", message, QIcon(":icons/electron-radiant.svg"), 20000)
             except TypeError:
-                self.tray.showMessage("Electron Cash", message, QSystemTrayIcon.Information, 20000)
+                self.tray.showMessage("Electron Radiant", message, QSystemTrayIcon.Information, 20000)
 
     @property
     def windows_qt_use_freetype(self):

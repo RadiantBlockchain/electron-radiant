@@ -358,37 +358,6 @@ class AddressList(MyTreeWidget):
 
         run_hook('address_list_context_menu_setup', self, menu, addrs)
 
-        # Add Cash Accounts section at the end, if relevant
-        if not multi_select:
-            ca_list = item.data(0, self.DataRoles.cash_accounts)
-            menu.addSeparator()
-            a1 = menu.addAction(_("Cash Accounts"), lambda: None)
-            a1.setDisabled(True)
-            if ca_list:
-                ca_default = self._ca_get_default(ca_list)
-                for ca_info in ca_list:
-                    ca_text = self.wallet.cashacct.fmt_info(ca_info, ca_info.minimal_chash)
-                    ca_text_em = self.wallet.cashacct.fmt_info(ca_info, ca_info.minimal_chash, emoji=True)
-                    m = menu.addMenu(ca_info.emoji + " " + ca_text)
-                    a_ca_copy = m.addAction(_("Copy Cash Account"), lambda x=None, text=ca_text_em: doCopy(text))
-                    a = m.addAction(_("Details") + "...", lambda x=None,ca_text=ca_text: cashacctqt.cash_account_detail_dialog(self.parent, ca_text))
-                    a = m.addAction(_("View registration tx") + "...", lambda x=None, ca=ca_info: self.parent.do_process_from_txid(txid=ca.txid))
-                    a = a_def = m.addAction(_("Make default for address"), lambda x=None, ca=ca_info: self._ca_set_default(ca, True))
-                    if ca_info == ca_default:
-                        if where_to_insert_dupe_copy_cash_account and a_ca_copy:
-                            # insert a dupe of "Copy Cash Account" for the default cash account for this address in the top-level menu
-                            menu.insertAction(where_to_insert_dupe_copy_cash_account, a_ca_copy)
-                        m.setTitle(m.title() + "    " + "★")
-                        a_def.setDisabled(True)
-                        a_def.setCheckable(True)
-                        a_def.setChecked(True)
-                        a_def.setText(_("Is default for address"))
-            else:
-                a1.setText(_("No Cash Accounts"))
-            a_new = menu.addAction(_("Register new..."), lambda x=None, addr=addr: self.parent.register_new_cash_account(addr))
-            a_new.setIcon(__class__._cashacct_icon)
-
-
         run_hook('receive_menu', menu, addrs, self.wallet)
         menu.exec_(self.viewport().mapToGlobal(position))
 

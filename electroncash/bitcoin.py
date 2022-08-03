@@ -51,7 +51,7 @@ except AssertionError:
     pass
 else:
     import sys
-    sys.exit('Electron Cash uses "assert" statements for its normal control flow.\n'
+    sys.exit('Electron Radiant uses "assert" statements for its normal control flow.\n'
              'Please run this application without the python "-O" (optimize) flag.')
 # /End -O check
 

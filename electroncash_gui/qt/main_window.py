@@ -533,8 +533,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         if self.wallet.is_watching_only():
             msg = ' '.join([
                 _("This wallet is watching-only."),
-                _("This means you will not be able to spend Bitcoin Cash with it."),
-                _("Make sure you own the seed phrase or the private keys, before you request Bitcoin Cash to be sent to this wallet.")
+                _("This means you will not be able to spend Radiant with it."),
+                _("Make sure you own the seed phrase or the private keys, before you request Radiant to be sent to this wallet.")
             ])
             self.show_warning(msg, title=_('Information'))
 
@@ -612,7 +612,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
 
                 self.show_message(_("A copy of your wallet file was created in")+" '%s'" % str(new_path), title=_("Wallet backup created"))
             except (IOError, os.error) as reason:
-                self.show_critical(_("Electron Cash was unable to copy your wallet file to the specified location.") + "\n" + str(reason), title=_("Unable to create backup"))
+                self.show_critical(_("Electron Radiant was unable to copy your wallet file to the specified location.") + "\n" + str(reason), title=_("Unable to create backup"))
 
     def update_recently_visited(self, filename):
         recent = self.config.get('recently_open', [])
@@ -745,22 +745,13 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         raw_transaction_menu.addAction(_("From the &Blockchain") + "...", self.do_process_from_txid, QKeySequence("Ctrl+B"))
         raw_transaction_menu.addAction(_("From &QR Code") + "...", self.read_tx_from_qrcode)
         self.raw_transaction_menu = raw_transaction_menu
-        tools_menu.addSeparator()
-        if ColorScheme.dark_scheme and sys.platform != 'darwin':  # use dark icon in menu except for on macOS where we can't be sure it will look right due to the way menus work on macOS
-            icon = QIcon(":icons/cashacct-button-darkmode.png")
-        else:
-            icon = QIcon(":icons/cashacct-logo.png")
-        tools_menu.addAction(icon, _("Lookup &Cash Account..."), self.lookup_cash_account_dialog, QKeySequence("Ctrl+L"))
-        tools_menu.addAction(icon, _("&Register Cash Account..."), lambda: self.register_new_cash_account(addr='pick'), QKeySequence("Ctrl+G"))
-        icon = QIcon(":icons/lns.png")
-        tools_menu.addAction(icon, _("Lookup &LNS Name..."), self.lookup_lns_dialog, QKeySequence("Ctrl+Shift+L"))
         run_hook('init_menubar_tools', self, tools_menu)
 
         help_menu = menubar.addMenu(_("&Help"))
         help_menu.addAction(_("&About"), self.show_about)
         help_menu.addAction(_("About Qt"), self.app.aboutQt)
         help_menu.addAction(_("&Check for Updates"), lambda: self.gui_object.show_update_checker(self))
-        help_menu.addAction(_("&Official Website"), lambda: webopen("https://electroncash.org"))
+        help_menu.addAction(_("&Official Website"), lambda: webopen("https://github.com/RadiantBlockchain/electron-radiant"))
         help_menu.addSeparator()
         help_menu.addAction(_("Documentation"), lambda: webopen("http://electroncash.readthedocs.io/")).setShortcut(QKeySequence.HelpContents)
         help_menu.addAction(_("&Report Bug..."), self.show_report_bug)
@@ -805,8 +796,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.show_error(_('No donation address for this server'))
 
     def show_about(self):
-        QMessageBox.about(self, "Electron Cash",
-            "<p><font size=+3><b>Electron Cash</b></font></p><p>" + _("Version") + f" {self.wallet.electrum_version}" + "</p>" +
+        QMessageBox.about(self, "Electron Radiant",
+            "<p><font size=+3><b>Electron Radiant</b></font></p><p>" + _("Version") + f" {self.wallet.electrum_version}" + "</p>" +
             '<span style="font-size:11pt; font-weight:500;"><p>' +
             _("Copyright © {year_start}-{year_end} Electron Cash LLC and the Electron Cash developers.").format(year_start=2017, year_end=2022) +
             "</p><p>" + _("darkdetect for macOS © 2019 Alberto Sottile") + "</p>"
@@ -819,11 +810,11 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
     def show_report_bug(self):
         msg = ' '.join([
             _("Please report any bugs as issues on github:<br/>"),
-            "<a href=\"https://github.com/Electron-Cash/Electron-Cash/issues\">https://github.com/Electron-Cash/Electron-Cash/issues</a><br/><br/>",
-            _("Before reporting a bug, upgrade to the most recent version of Electron Cash (latest release or git HEAD), and include the version number in your report."),
+            "<a href=\"https://github.com/RadiantBlockchain/electron-radiant/issues\">https://github.com/RadiantBlockchain/electron-radiant/issues</a><br/><br/>",
+            _("Before reporting a bug, upgrade to the most recent version of Electron Radiant (latest release or git HEAD), and include the version number in your report."),
             _("Try to explain not only what the bug is, but how it occurs.")
          ])
-        self.show_message(msg, title="Electron Cash - " + _("Reporting Bugs"), rich_text = True)
+        self.show_message(msg, title="Electron Radiant - " + _("Reporting Bugs"), rich_text = True)
 
     def notify(self, message):
         self.gui_object.notify(message)
@@ -1132,7 +1123,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.receive_address_e = ButtonsLineEdit()
         self.receive_address_e.addCopyButton()
         self.receive_address_e.setReadOnly(True)
-        msg = _('Bitcoin Cash address where the payment should be received. Note that each payment request uses a different Bitcoin Cash address.')
+        msg = _('Radiant address where the payment should be received. Note that each payment request uses a different Radiant address.')
         label = HelpLabel(_('&Receiving address'), msg)
         label.setBuddy(self.receive_address_e)
         self.receive_address_e.textChanged.connect(self.update_receive_qr)
@@ -1153,75 +1144,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             label.setBuddy(self.receive_address_e)
 
         grid.addWidget(label, 0, 0)
-
-        # Cash Account for this address (if any)
-        msg = _("The Cash Account (if any) associated with this address. It doesn't get saved with the request, but it is shown here for your convenience.\n\nYou may use the Cash Accounts button to register a new Cash Account for this address.")
-        label = HelpLabel(_('Cash Accoun&t'), msg)
-        class CashAcctE(ButtonsLineEdit):
-            my_network_signal = pyqtSignal(str, object)
-            ''' Inner class encapsulating the Cash Account Edit.s
-            Note:
-                 - `slf` in this class is this instance.
-                 - `self` is wrapping class instance. '''
-            def __init__(slf, *args):
-                super().__init__(*args)
-                slf.font_default_size = slf.font().pointSize()
-                icon = ":icons/cashacct-button-darkmode.png" if ColorScheme.dark_scheme else ":icons/cashacct-logo.png"
-                slf.ca_but = slf.addButton(icon, self.register_new_cash_account, _("Register a new Cash Account for this address"))
-                slf.ca_copy_b = slf.addCopyButton()
-                slf.setReadOnly(True)
-                slf.info = None
-                slf.cleaned_up = False
-                self.network_signal.connect(slf.on_network_qt)
-                slf.my_network_signal.connect(slf.on_network_qt)
-                if self.wallet.network:
-                    self.wallet.network.register_callback(slf.on_network, ['ca_updated_minimal_chash'])
-            def clean_up(slf):
-                slf.cleaned_up = True
-                try: self.network_signal.disconnect(slf.on_network_qt)  # need to disconnect parent signals due to PyQt bugs, see #1531
-                except TypeError: pass
-                if self.wallet.network:
-                    self.wallet.network.unregister_callback(slf.on_network)
-            def set_cash_acct(slf, info: cashacct.Info = None, minimal_chash = None):
-                if not info and self.receive_address:
-                    minimal_chash = None
-                    ca_list = self.wallet.cashacct.get_cashaccounts(domain=[self.receive_address])
-                    ca_list.sort(key=lambda x: ((x.number or 0), str(x.collision_hash)))
-                    info = self.wallet.cashacct.get_address_default(ca_list)
-                if info:
-                    slf.ca_copy_b.setDisabled(False)
-                    f = slf.font(); f.setItalic(False); f.setPointSize(slf.font_default_size); slf.setFont(f)
-                    slf.setText(info.emoji + "  " + self.wallet.cashacct.fmt_info(info, minimal_chash=minimal_chash))
-                else:
-                    slf.setText(pgettext("Referencing CashAccount", "None"))
-                    f = slf.font(); f.setItalic(True); f.setPointSize(slf.font_default_size-1); slf.setFont(f)
-                    slf.ca_copy_b.setDisabled(True)
-                slf.info = info
-            def on_copy(slf):
-                ''' overrides super class '''
-                QApplication.instance().clipboard().setText(slf.text()[3:] + ' ' + slf.text()[:1]) # cut off the leading emoji, and add it to the end
-                QToolTip.showText(QCursor.pos(), _("Cash Account copied to clipboard"), slf)
-            def on_network_qt(slf, event, args=None):
-                ''' pick up cash account changes and update receive tab. Called
-                from GUI thread. '''
-                if not args or self.cleaned_up or slf.cleaned_up or args[0] != self.wallet.cashacct:
-                    return
-                if event == 'ca_verified_tx' and self.receive_address and self.receive_address == args[1].address:
-                    slf.set_cash_acct()
-                elif event == 'ca_updated_minimal_chash' and slf.info and slf.info.address == args[1].address:
-                    slf.set_cash_acct()
-            def on_network(slf, event, *args):
-                if event == 'ca_updated_minimal_chash' and args[0] == self.wallet.cashacct:
-                    slf.my_network_signal.emit(event, args)
-            def showEvent(slf, e):
-                super().showEvent(e)
-                if e.isAccepted():
-                    slf.set_cash_acct()
-        self.cash_account_e = CashAcctE()
-        label.setBuddy(self.cash_account_e)
-        grid.addWidget(label, 1, 0)
-        grid.addWidget(self.cash_account_e, 1, 1, 1, -1)
-
 
         self.receive_message_e = QLineEdit()
         label = QLabel(_('&Description'))
@@ -1268,8 +1190,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         msg = ' '.join([
             _('Expiration date of your request.'),
             _('This information is seen by the recipient if you send them a signed payment request.'),
-            _('Expired requests have to be deleted manually from your list, in order to free the corresponding Bitcoin Cash addresses.'),
-            _('The Bitcoin Cash address never expires and will always be part of this Electron Cash wallet.'),
+            _('Expired requests have to be deleted manually from your list, in order to free the corresponding Radiant addresses.'),
+            _('The Radiant address never expires and will always be part of this Electron Radiant wallet.'),
         ])
         label = HelpLabel(_('Request &expires'), msg)
         label.setBuddy(self.expires_combo)
@@ -1507,7 +1429,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         if self.receive_address:
             text = self.receive_address.to_full_ui_string()
         self.receive_address_e.setText(text)
-        self.cash_account_e.set_cash_acct()
 
     @rate_limited(0.250, ts_after=True)  # this function potentially re-computes the QR widget, so it's rate limited to once every 250ms
     def check_and_reset_receive_address_if_needed(self):
@@ -3047,8 +2968,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.search_box.hide()
         sb.addPermanentWidget(self.search_box, 1)
 
-        self.update_available_button = StatusBarButton(QIcon(":icons/electron-cash-update.svg"), _("Update available, click for details"), lambda: self.gui_object.show_update_checker(self, skip_check=True))
-        self.update_available_button.setStatusTip(_("An Electron Cash update is available"))
+        self.update_available_button = StatusBarButton(QIcon(":icons/electron-radiant-update.svg"), _("Update available, click for details"), lambda: self.gui_object.show_update_checker(self, skip_check=True))
+        self.update_available_button.setStatusTip(_("An Electron Radiant update is available"))
         sb.addPermanentWidget(self.update_available_button)
         self.update_available_button.setVisible(bool(self.gui_object.new_version_available))  # if hidden now gets unhidden by on_update_available when a new version comes in
 
@@ -3390,7 +3311,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         try:
             address = Address.from_string(address.text().strip())
         except:
-            self.show_message(_('Invalid Bitcoin Cash address.'))
+            self.show_message(_('Invalid Radiant address.'))
             return
         message = message.toPlainText().strip().encode('utf-8')
         try:
@@ -3530,7 +3451,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         except:
             if util.is_verbose:
                 traceback.print_exc(file=sys.stderr)
-            self.show_critical(_("Electron Cash was unable to parse your transaction"))
+            self.show_critical(_("Electron Radiant was unable to parse your transaction"))
             return
 
     # Due to the asynchronous nature of the qr reader we need to keep the
@@ -3597,7 +3518,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             file_content = file_content.strip()
             tx_file_dict = json.loads(str(file_content))
         except (ValueError, IOError, OSError, json.decoder.JSONDecodeError) as reason:
-            self.show_critical(_("Electron Cash was unable to open your transaction file") + "\n" + str(reason), title=_("Unable to read file or no transaction found"))
+            self.show_critical(_("Electron Radiant was unable to open your transaction file") + "\n" + str(reason), title=_("Unable to read file or no transaction found"))
             return
         tx = self.tx_from_text(file_content)
         return tx
@@ -3612,7 +3533,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             if tx:
                 self.show_transaction(tx)
         except SerializationError as e:
-            self.show_critical(_("Electron Cash was unable to deserialize the transaction:") + "\n" + str(e))
+            self.show_critical(_("Electron Radiant was unable to deserialize the transaction:") + "\n" + str(e))
 
     def do_process_from_file(self, *, fileName = None):
         from electroncash.transaction import SerializationError
@@ -3621,7 +3542,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             if tx:
                 self.show_transaction(tx)
         except SerializationError as e:
-            self.show_critical(_("Electron Cash was unable to deserialize the transaction:") + "\n" + str(e))
+            self.show_critical(_("Electron Radiant was unable to deserialize the transaction:") + "\n" + str(e))
 
     def do_process_from_txid(self, *, txid=None, parent=None, tx_desc=None):
         parent = parent or self
@@ -3659,7 +3580,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
 
         if bip38:
             if not bitcoin.Bip38Key.canEncrypt() or not bitcoin.Bip38Key.isFast():
-                self.show_error(_("BIP38 Encryption is not available. Please install 'pycryptodomex' and restart Electron Cash to enable BIP38."))
+                self.show_error(_("BIP38 Encryption is not available. Please install 'pycryptodomex' and restart Electron Radiant to enable BIP38."))
                 return
             passphrase = self.get_passphrase_dialog(
                 msg = (
@@ -3812,7 +3733,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.do_export_privkeys(filename, private_keys, csv_button.isChecked())
         except (IOError, os.error) as reason:
             txt = "\n".join([
-                _("Electron Cash was unable to produce a private key-export."),
+                _("Electron Radiant was unable to produce a private key-export."),
                 str(reason)
             ])
             self.show_critical(txt, title=_("Unable to create csv"))
@@ -3847,7 +3768,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                 self.wallet.set_label(key, value)
             self.show_message(_("Your labels were imported from") + " '%s'" % str(labelsFile))
         except (IOError, OSError, json.decoder.JSONDecodeError) as reason:
-            self.show_critical(_("Electron Cash was unable to import your labels.") + "\n" + str(reason))
+            self.show_critical(_("Electron Radiant was unable to import your labels.") + "\n" + str(reason))
         self.address_list.update()
         self.history_list.update()
         self.utxo_list.update()
@@ -3862,7 +3783,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                     json.dump(labels, f, indent=4, sort_keys=True)
                 self.show_message(_("Your labels were exported to") + " '%s'" % str(fileName))
         except (IOError, os.error) as reason:
-            self.show_critical(_("Electron Cash was unable to export your labels.") + "\n" + str(reason))
+            self.show_critical(_("Electron Radiant was unable to export your labels.") + "\n" + str(reason))
 
     def export_history_dialog(self):
         d = WindowModalDialog(self.top_level_window(), _('Export History'))
@@ -3917,7 +3838,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                                              timeout=timeout,
                                              include_addresses=include_addresses_chk.isChecked())
         except Exception as reason:
-            export_error_label = _("Electron Cash was unable to produce a transaction export.")
+            export_error_label = _("Electron Radiant was unable to produce a transaction export.")
             self.show_critical(export_error_label + "\n" + str(reason), title=_("Unable to export history"))
         else:
             if success:
@@ -4341,7 +4262,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         cr_chk.setChecked(ew.is_enabled(self.config))
         cr_chk.clicked.connect(lambda b: ew.set_enabled(self.config, b))
         cr_help = HelpLabel(_("Crash reporter enabled"),
-                            _("The crash reporter is the error window which pops-up when Electron Cash encounters an internal error.\n\n"
+                            _("The crash reporter is the error window which pops-up when Electron Radiant encounters an internal error.\n\n"
                               "It is recommended that you leave this option enabled, so that developers can be notified of any internal bugs. "
                               "When a crash is encountered you are asked if you would like to send a report.\n\n"
                               "Private information is never revealed in crash reports to developers."))
@@ -4525,7 +4446,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
 
         updatecheck_cb = QCheckBox(_("Automatically check for updates"))
         updatecheck_cb.setChecked(self.gui_object.has_auto_update_check())
-        updatecheck_cb.setToolTip(_("Enable this option if you wish to be notified as soon as a new version of Electron Cash becomes available"))
+        updatecheck_cb.setToolTip(_("Enable this option if you wish to be notified as soon as a new version of Electron Radiant becomes available"))
         def on_set_updatecheck(v):
             self.gui_object.set_auto_update_check(v == Qt.Checked)
         updatecheck_cb.stateChanged.connect(on_set_updatecheck)
@@ -4829,7 +4750,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
 
         run_hook('close_settings_dialog')
         if self.need_restart:
-            self.show_message(_('Please restart Electron Cash to activate the new GUI settings'), title=_('Success'))
+            self.show_message(_('Please restart Electron Radiant to activate the new GUI settings'), title=_('Success'))
         elif need_wallet_reopen:
             self.show_message(_('Please close and reopen this wallet to activate the new settings'), title=_('Success'))
 
@@ -4905,7 +4826,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.wallet.thread.stop()
             self.wallet.thread.wait() # Join the thread to make sure it's really dead.
 
-        for w in [self.address_list, self.history_list, self.utxo_list, self.cash_account_e, self.contact_list,
+        for w in [self.address_list, self.history_list, self.utxo_list, self.contact_list,
                   self.tx_update_mgr]:
             if w: w.clean_up()  # tell relevant object to clean itself up, unregister callbacks, disconnect signals, etc
 

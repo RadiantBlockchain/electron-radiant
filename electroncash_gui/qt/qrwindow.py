@@ -36,7 +36,7 @@ class QR_Window(QWidget, MessageBoxMixin):
 
     def __init__(self):
         super().__init__() # Top-level window. Parent needs to hold a reference to us and clean us up appropriately.
-        self.setWindowTitle('Electron Cash - ' + _('Payment Request'))
+        self.setWindowTitle('Electron Radiant - ' + _('Payment Request'))
         self.label = ''
         self.amount = 0
         self.setFocusPolicy(Qt.NoFocus)

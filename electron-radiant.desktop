@@ -1,0 +1,21 @@
+# If you want Electron Radiant to appear in a linux app launcher ("start menu"),
+# install this file by doing:
+# sudo desktop-file-install electron-radiant.desktop
+
+[Desktop Entry]
+Comment=Lightweight Radiant Client
+Exec=electron-radiant %u
+GenericName=Radiant Wallet
+Icon=electron-radiant
+Name=Electron Radiant
+Categories=Finance;Network;
+StartupNotify=true
+StartupWMClass=Electron Radiant
+Terminal=false
+Type=Application
+#MimeType=x-scheme-handler/bitcoincash;x-scheme-handler/cashacct;
+Actions=Testnet;
+
+[Desktop Action Testnet]
+Exec=electron-radiant --testnet %u
+Name=Testnet mode

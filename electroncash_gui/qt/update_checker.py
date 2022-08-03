@@ -64,7 +64,7 @@ class UpdateChecker(QWidget, PrintError):
 
     #url = "https://www.c3-soft.com/downloads/BitcoinCash/Electron-Cash/update_check" # Testing URL
     url = "https://raw.github.com/RadiantBlockchain/electron-radiant/master/contrib/update_checker/releases.json" # Release URL
-    download_url = "https://electroncash.org/#download"
+    download_url = "https://github.com/RadiantBlockchain/electron-radiant/releases"
 
     VERSION_ANNOUNCEMENT_SIGNING_ADDRESSES = (
         address.Address.from_string("bitcoincash:qphax4cg8sxuc0qnzk6sx25939ma7y877uz04s2z82", net=MainNet), # Calin's key
@@ -74,7 +74,7 @@ class UpdateChecker(QWidget, PrintError):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Electron Cash - ' + _('Update Checker'))
+        self.setWindowTitle('Electron Radiant - ' + _('Update Checker'))
         self.content = QVBoxLayout()
         self.content.setContentsMargins(*([10]*4))
 
@@ -224,7 +224,7 @@ class UpdateChecker(QWidget, PrintError):
                 self.cancel_or_check_button.setEnabled(False)
             else:
                 self.heading_label.setText('<h2>' + _("Already up to date") + '</h2>')
-                self.detail_label.setText(_("You are already on the latest version of Electron Cash."))
+                self.detail_label.setText(_("You are already on the latest version of Electron Radiant."))
                 self.cancel_or_check_button.setEnabled(True)
         else:
             self.pb.show()
@@ -233,7 +233,7 @@ class UpdateChecker(QWidget, PrintError):
             self.cancel_or_check_button.setEnabled(True)
             self.latest_version_label.setText("")
             self.heading_label.setText('<h2>' + _("Checking for updates...") + '</h2>')
-            self.detail_label.setText(_("Please wait while Electron Cash checks for available updates."))
+            self.detail_label.setText(_("Please wait while Electron Radiant checks for available updates."))
 
     def cancel_active(self):
         if self.active_req:

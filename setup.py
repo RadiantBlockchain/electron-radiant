@@ -59,11 +59,11 @@ if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
         share_dir = user_share
     data_files += [
         # Menu icon
-        (os.path.join(share_dir, 'icons/hicolor/256x256/apps/'),   ['icons/electron-cash.png']),
-        (os.path.join(share_dir, 'pixmaps/'),                      ['icons/electron-cash.png']),
-        (os.path.join(share_dir, 'icons/hicolor/scaleable/apps/'), ['icons/electron-cash.svg']),
+        (os.path.join(share_dir, 'icons/hicolor/256x256/apps/'),   ['icons/electron-radiant.png']),
+        (os.path.join(share_dir, 'pixmaps/'),                      ['icons/electron-radiant.png']),
+        (os.path.join(share_dir, 'icons/hicolor/scaleable/apps/'), ['icons/electron-radiant.svg']),
         # Menu entry
-        (os.path.join(share_dir, 'applications/'), ['electron-cash.desktop']),
+        (os.path.join(share_dir, 'applications/'), ['electron-radiant.desktop']),
         # App stream (store) metadata
         (os.path.join(share_dir, 'metainfo/'), ['org.electroncash.ElectronCash.appdata.xml']),
     ]
@@ -177,9 +177,7 @@ setup(
         'electroncash_plugins.trezor',
         'electroncash_plugins.digitalbitbox',
         'electroncash_plugins.virtualkeyboard',
-        'electroncash_plugins.shuffle_deprecated',
         'electroncash_plugins.satochip',
-        'electroncash_plugins.fusion',
     ],
     package_data={
         'electroncash': [
@@ -195,22 +193,16 @@ setup(
             'locale/*/LC_MESSAGES/electron-cash.mo',
             'tor/bin/*'
         ],
-        'electroncash_plugins.shuffle_deprecated': [
-            'servers.json'
-        ],
-        'electroncash_plugins.fusion': [
-            '*.svg', '*.png'
-        ],
         # On Linux and Windows this means adding electroncash_gui/qt/data/*.ttf
         # On Darwin we don't use that font, so we don't add it to save space.
         **platform_package_data
     },
-    scripts=['electron-cash'],
+    scripts=['electron-radiant'],
     data_files=data_files,
-    description="Lightweight Bitcoin Cash Wallet",
-    author="The Electron Cash Developers",
-    author_email="jonf@electroncash.org",
+    description="Lightweight Radiant Wallet",
+    author="",
+    author_email="",
     license="MIT Licence",
-    url="http://electroncash.org",
-    long_description="""Lightweight Bitcoin Cash Wallet"""
+    url="https://github.com/RadiantBlockchain/electron-radiant",
+    long_description="""Lightweight Radiant Wallet"""
 )

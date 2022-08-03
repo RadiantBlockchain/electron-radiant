@@ -131,7 +131,7 @@ class ContactList(PrintError, MyTreeWidget):
             num = self.parent.contacts.import_file(filename)
             self.parent.show_message(_("{} contacts successfully imported.").format(num))
         except Exception as e:
-            self.parent.show_error(_("Electron Cash was unable to import your contacts.") + "\n" + repr(e))
+            self.parent.show_error(_("Electron Radiant was unable to import your contacts.") + "\n" + repr(e))
         self.on_update()
 
     def export_contacts(self):
@@ -144,7 +144,7 @@ class ContactList(PrintError, MyTreeWidget):
                 num = self.parent.contacts.export_file(fileName)
                 self.parent.show_message(_("{} contacts exported to '{}'").format(num, fileName))
         except Exception as e:
-            self.parent.show_error(_("Electron Cash was unable to export your contacts.") + "\n" + repr(e))
+            self.parent.show_error(_("Electron Radiant was unable to export your contacts.") + "\n" + repr(e))
 
     def find_item(self, key: Contact) -> QTreeWidgetItem:
         ''' Rather than store the item reference in a lambda, we store its key.

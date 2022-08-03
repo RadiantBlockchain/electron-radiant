@@ -1,19 +1,19 @@
-name: electron-cash
+name: electron-radiant
 version: master
-summary: Bitcoin Cash thin client
+summary: Radiant thin client
 description: |
-  Lightweight Bitcoin Cash client
+  Lightweight Radiant client
 
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: strict
 
 apps:
-  electron-cash:
-    command: desktop-launch electron-cash
+  electron-radiant:
+    command: desktop-launch electron-radiant
     plugs: [network, network-bind, x11, unity7]
 
 parts:
-  electron-cash:
+  electron-radiant:
     source: .
     plugin: python
     python-version: python3
