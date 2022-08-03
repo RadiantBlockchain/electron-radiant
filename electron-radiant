@@ -40,8 +40,8 @@ if sys.platform == "win32" and hasattr(sys, 'frozen') and hasattr(sys, '_MEIPASS
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
 if sys.version_info < (3, 6):
-    sys.exit("*** Electron Cash support for Python 3.5 has been discontinued.\n"
-             "*** Please run Electron Cash with Python 3.6 or above.")
+    sys.exit("*** Electron Radiant support for Python 3.5 has been discontinued.\n"
+             "*** Please run Electron Radiant with Python 3.6 or above.")
 
 # from https://gist.github.com/tito/09c42fb4767721dc323d
 import threading
@@ -511,7 +511,7 @@ def main():
     # On windows, allocate a console if needed
     if sys.platform.startswith('win'):
         require_console = '-v' in sys.argv or '--verbose' in sys.argv
-        console_title = _("Electron Cash - Verbose Output") if require_console else None
+        console_title = _("Electron Radiant - Verbose Output") if require_console else None
         # Attempt to attach to ancestor process console. If create=True we will
         # create a new console window if no ancestor process console exists.
         # (Presumably if user ran with -v, they expect console output).

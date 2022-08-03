@@ -199,10 +199,10 @@ setup(
     },
     scripts=['electron-radiant'],
     data_files=data_files,
-    description="Lightweight Bitcoin Cash Wallet",
-    author="The Electron Cash Developers",
-    author_email="jonf@electroncash.org",
+    description="Lightweight Radiant Wallet",
+    author="",
+    author_email="",
     license="MIT Licence",
-    url="http://electroncash.org",
-    long_description="""Lightweight Bitcoin Cash Wallet"""
+    url="https://github.com/RadiantBlockchain/electron-radiant",
+    long_description="""Lightweight Radiant Wallet"""
 )
