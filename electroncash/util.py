@@ -45,8 +45,8 @@ def inv_dict(d):
     return {v: k for k, v in d.items()}
 
 
-DEFAULT_BASE_UNIT = "RAD"
-base_units = {'RAD':8, 'mRAD':5, 'bits':2}
+DEFAULT_BASE_UNIT = "RXD"
+base_units = {'RXD':8, 'mRXD':5, 'bits':2}
 
 inv_base_units = {}
 base_unit_labels = tuple()
