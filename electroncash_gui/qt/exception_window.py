@@ -57,7 +57,8 @@ issue_template = """<h2>Traceback</h2>
   <li>Locale: {locale}</li>
 </ul>
 """
-report_server = "https://crashhub.electroncash.org/crash"
+# There is currently no report server for Electron Radiant
+report_server = ""
 
 
 class Exception_Window(QWidget):
@@ -68,7 +69,7 @@ class Exception_Window(QWidget):
         self.exc_args = (exctype, value, tb)
         self.config = config
         self.setWindowTitle('Electron Radiant - ' + _('An Error Occurred'))
-        self.setMinimumSize(600, 300)
+        self.setMinimumSize(600, 200)
 
         main_box = QVBoxLayout()
         main_box.setContentsMargins(20,20,20,20)
@@ -79,6 +80,12 @@ class Exception_Window(QWidget):
         l.setWordWrap(True)
         main_box.addWidget(l)
 
+        l = QLabel(_('Please report the problem on <a href="https://github.com/RadiantBlockchain/electron-radiant/issues">GitHub</a>.'))
+        l.setWordWrap(True)
+        l.setOpenExternalLinks(True)
+        main_box.addWidget(l)
+
+        """
         l = QLabel(_('To help us diagnose and fix the problem, you can send us'
                      ' a bug report that contains useful debug information:'))
         l.setWordWrap(True)
@@ -98,10 +105,11 @@ class Exception_Window(QWidget):
         self.description_textfield.setAcceptRichText(False)  # Force plain 'ol text descriptions.. no rich-text pastes
         self.description_textfield.setFixedHeight(50)
         main_box.addWidget(self.description_textfield)
-
+        """
 
         buttons = QHBoxLayout()
 
+        """
         l = QLabel(_("Do you want to send this report?"))
         l.setWordWrap(True)
 
@@ -118,8 +126,9 @@ class Exception_Window(QWidget):
         report_button.clicked.connect(self.send_report)
         report_button.setIcon(QIcon(":icons/tab_send.png"))
         buttons.addWidget(report_button)
+        """
 
-        close_button = QPushButton(_('Not Now'))
+        close_button = QPushButton(_('Close'))
         close_button.clicked.connect(self.close)
         buttons.addWidget(close_button)
 

@@ -242,15 +242,10 @@ class ContactList(PrintError, MyTreeWidget):
                     menu.addAction(_("Details..."), lambda: lnsqt.lns_detail_dialog(self.parent, _contact_d.name))
             menu.addSeparator()
 
-        menu.addAction(self.icon_cashacct,
-                       _("Add Contact") + " - " + _("Cash Account"), self.new_cash_account_contact_dialog)
         if self.have_lns:
             menu.addAction(self.icon_lns,
                            _("Add Contact") + " - " + _("LNS Name"), self.new_lns_contact_dialog)
         menu.addAction(self.icon_contacts, _("Add Contact") + " - " + _("Address"), self.parent.new_contact_dialog)
-        menu.addSeparator()
-        menu.addAction(self.icon_cashacct,
-                       _("Register Cash Account..."), self.parent.register_new_cash_account)
         menu.addSeparator()
         menu.addAction(QIcon(":icons/import.svg" if not ColorScheme.dark_scheme else ":icons/import_dark_theme.svg"),
                        _("Import file"), self.import_contacts)
@@ -259,9 +254,6 @@ class ContactList(PrintError, MyTreeWidget):
                            _("Export file"), self.export_contacts)
 
         menu.addSeparator()
-        a = menu.addAction(_("Show My Cash Accounts"), self.toggle_show_my_cashaccts)
-        a.setCheckable(True)
-        a.setChecked(self.show_my_cashaccts)
         if self.have_lns:
             a = menu.addAction(_("Show My LNS Names"), self.toggle_show_my_lns_names)
             a.setCheckable(True)

@@ -42,7 +42,7 @@ from .transaction import get_address_from_output_script
 try:
     from web3 import Web3
     from web3.contract import Contract
-    available = True
+    available = False
 except ImportError:
     available = False
     Web3 = type(None)
