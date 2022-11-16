@@ -38,7 +38,7 @@ class SimpleConfig(PrintError):
         2. User configuration (in the user's config directory)
     They are taken in order (1. overrides config options set in 2.)
     """
-    fee_rates = [1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000, 10000000]
+    fee_rates = [10000000, 20000000, 30000000, 40000000, 50000000, 60000000, 70000000, 80000000, 90000000, 100000000]
 
     def __init__(self, options=None, read_user_config_function=None,
                  read_user_dir_function=None):
@@ -313,7 +313,7 @@ class SimpleConfig(PrintError):
        if retval is None:
            retval = self.get('fee_per_kb')
        if retval is None:
-           retval = 1000  # New wallet
+           retval = 10000  # New wallet
        return retval
 
     def has_custom_fee_rate(self):
