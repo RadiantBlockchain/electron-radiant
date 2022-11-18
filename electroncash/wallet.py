@@ -1778,10 +1778,10 @@ class Abstract_Wallet(PrintError, SPVDelegate):
             #    is_lowfee = fee < low_fee * 0.5
             #else:
             #    is_lowfee = False
-            # and instead if it's less than 1.0 sats/B we flag it as low_fee
+            # and instead if it's less than 1.0 photons/B we flag it as low_fee
             try:
                 # NB len(tx.raw) is 2x the byte size as it's hex encoded.
-                is_lowfee = int(fee) / (int(len(tx.raw)) / 2.0) < 1.0  # if less than 1.0 sats/B, complain. otherwise don't.
+                is_lowfee = int(fee) / (int(len(tx.raw)) / 2.0) < 1.0  # if less than 1.0 photons/B, complain. otherwise don't.
             except (TypeError, ValueError):  # If for some reason fee was None or invalid, just pass on through.
                 is_lowfee = False
             # /

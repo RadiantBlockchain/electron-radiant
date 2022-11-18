@@ -827,7 +827,7 @@ class SendVC(SendBase):
             parent().show_error(_("Insufficient funds"))
             return
         except ExcessiveFee:
-            parent().show_error(_("Your fee is too high.  Max is 500000 sat/byte."))
+            parent().show_error(_("Your fee is too high.  Max is 500000 photons/byte."))
             return
         except BaseException as e:
             traceback.print_exc(file=sys.stdout)

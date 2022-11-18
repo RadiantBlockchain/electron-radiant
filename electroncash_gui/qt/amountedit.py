@@ -103,7 +103,7 @@ class BTCSatsByteEdit(BTCAmountEdit):
     def __init__(self, parent=None):
         BTCAmountEdit.__init__(self, decimal_point = lambda: 2, is_int = False, parent = parent)
     def _base_unit(self):
-        return 'sats' + '/B'
+        return 'photons' + '/B'
     def get_amount(self):
         try:
             x = float(PyDecimal(str(self.text())))

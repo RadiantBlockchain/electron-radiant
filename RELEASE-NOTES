@@ -394,7 +394,7 @@ and there is no warning message.
   (cculianu)
 * Disabled all fee estimates in the codebase.  They are useless on BCH anyway
   and were a holdover from our BTC roots.  BCH tx's always confirm next block
-  if they pay the minimum 1.0 sats/B fee anyway.  Fee estimates are not needed.
+  if they pay the minimum 1.0 photons/B fee anyway.  Fee estimates are not needed.
   Also disabled the "Estimated confirmation time:" label from the Transaction
   Dialog winow.  This is not informative either for similar reasons. (cculianu)
 * Hardened build system against dependency vulnerabilities (cculianu)
@@ -523,7 +523,7 @@ and there is no warning message.
 * Schnorr: Defaults to off for watching-only wallets. This is to prevent
   air-gapped setups from underestimating fee between generating and signing EC.
   (cculianu)
-* Tx Dialog: Warn if user is attempting to broadcat a low fee tx of <1 sats/B.
+* Tx Dialog: Warn if user is attempting to broadcat a low fee tx of <1 photons/B.
   (cculianu)
 * Address tab: Allow CTRL+F of addresses prefixed with bitcoincash: to do the
   expected thing. (cculianu)

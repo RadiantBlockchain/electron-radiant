@@ -896,7 +896,7 @@ class ElectrumGui(PrintError):
 
     def format_fee_rate(self, fee_rate):
         if self.fee_unit == 0:
-            return '{:.2f} sats/byte'.format(fee_rate/1000)
+            return '{:.2f} photons/byte'.format(fee_rate/1000)
         else:
             return self.format_amount(fee_rate) + ' ' + self.base_unit() + '/kB'
 

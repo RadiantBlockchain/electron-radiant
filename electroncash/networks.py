@@ -40,7 +40,7 @@ class AbstractNet:
     LEGACY_POW_TARGET_TIMESPAN = 14 * 24 * 60 * 60   # 2 weeks
     LEGACY_POW_TARGET_INTERVAL = 10 * 60  # 10 minutes
     LEGACY_POW_RETARGET_BLOCKS = LEGACY_POW_TARGET_TIMESPAN // LEGACY_POW_TARGET_INTERVAL  # 2016 blocks
-    BASE_UNITS = {'RXD': 8, 'mRXD': 5, 'bits': 2}
+    BASE_UNITS = {'RXD': 8, 'mRXD': 5, 'photons': 0}
     DEFAULT_UNIT = "RXD"
 
 

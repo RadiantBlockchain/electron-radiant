@@ -46,7 +46,7 @@ def inv_dict(d):
 
 
 DEFAULT_BASE_UNIT = "RXD"
-base_units = {'RXD':8, 'mRXD':5, 'bits':2}
+base_units = {'RXD':8, 'mRXD':5, 'photons':0}
 
 inv_base_units = {}
 base_unit_labels = tuple()
