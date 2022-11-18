@@ -2170,7 +2170,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.show_message(_("Insufficient funds"))
             return
         except ExcessiveFee:
-            self.show_message(_("Your fee is too high.  Max is 50 sat/byte."))
+            self.show_message(_("Your fee is too high.  Max is 500000 sat/byte."))
             return
         except BaseException as e:
             traceback.print_exc(file=sys.stderr)
