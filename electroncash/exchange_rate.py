@@ -174,11 +174,6 @@ class BitcoinAverage(ExchangeBase):
     #                 for h in history])
 
 
-class BitPay(ExchangeBase):
-
-    def get_rates(self, ccy):
-        json = self.get_json('bitpay.com', '/rates/BCH')
-        return dict([(r['code'], PyDecimal(r['rate'])) for r in json['data']])
 
 
 class Bitso(ExchangeBase):
@@ -241,7 +236,7 @@ class CoinCap(ExchangeBase):
 class CoinGecko(ExchangeBase):
 
     def get_rates(self, ccy):
-        json = self.get_json('api.coingecko.com', '/api/v3/coins/bitcoin-cash?localization=False&sparkline=false')
+        json = self.get_json('api.coingecko.com', '/api/v3/coins/radiant?localization=False&sparkline=false')
         prices = json["market_data"]["current_price"]
         return dict([(a[0].upper(),PyDecimal(a[1])) for a in prices.items()])
 
@@ -255,7 +250,7 @@ class CoinGecko(ExchangeBase):
                 'ZAR']
 
     def request_history(self, ccy):
-        history = self.get_json('api.coingecko.com', '/api/v3/coins/bitcoin-cash/market_chart?vs_currency=%s&days=max' % ccy)
+        history = self.get_json('api.coingecko.com', '/api/v3/coins/radiant/market_chart?vs_currency=%s&days=max' % ccy)
 
         from datetime import datetime as dt
         return dict([(dt.utcfromtimestamp(h[0]/1000).strftime('%Y-%m-%d'), h[1])
@@ -347,7 +342,7 @@ class FxThread(ThreadJob):
         d = get_exchanges_by_ccy(h)
         return d.get(ccy, [])
 
-    def ccy_amount_str(self, amount, commas, default_prec=2, is_diff=False):
+    def ccy_amount_str(self, amount, commas, default_prec=5, is_diff=False):
         prec = CCY_PRECISIONS.get(self.ccy, default_prec)
         diff_str = ''
         if is_diff:
@@ -379,10 +374,8 @@ class FxThread(ThreadJob):
 
     @staticmethod
     def is_supported():
-        """Fiat currency is only supported on BCH MainNet, for all other chains it is not supported."""
-        # Disabled until Radiant exchange rates are available
-        #return not networks.net.TESTNET
-        return False
+        """Fiat currency is only supported on RXD MainNet, for all other chains it is not supported."""
+        return not networks.net.TESTNET
 
     def is_enabled(self):
         return bool(self.is_supported() and self.config.get('use_exchange_rate', DEFAULT_ENABLED))
@@ -464,9 +457,9 @@ class FxThread(ThreadJob):
 
     def get_fiat_status_text(self, btc_balance, base_unit, decimal_point):
         rate = self.exchange_rate()
-        default_prec = 2
+        default_prec = 6
         if base_unit == inv_base_units.get(2):  # if base_unit == 'bits', increase precision on fiat as bits is pretty tiny as of 2019
-            default_prec = 4
+            default_prec = 8
         return _("  (No FX rate available)") if rate is None else " 1 %s~%s %s" % (base_unit,
             self.value_str(COIN / (10**(8 - decimal_point)), rate, default_prec ), self.ccy )
 
