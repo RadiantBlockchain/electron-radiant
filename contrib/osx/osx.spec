@@ -3,10 +3,10 @@
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_dynamic_libs
 import sys, os
 
-PACKAGE='Electron-Cash'
-BUNDLE_IDENTIFIER='org.electroncash.' + PACKAGE # Used for info.plist
+PACKAGE='Electron-Radiant'
+BUNDLE_IDENTIFIER='org.electronradiant.' + PACKAGE # Used for info.plist
 PYPKG='electroncash'
-MAIN_SCRIPT='electron-cash'
+MAIN_SCRIPT='electron-radiant'
 ICONS_FILE='electron.icns'
 
 for i, x in enumerate(sys.argv):
@@ -75,8 +75,6 @@ a = Analysis([home+MAIN_SCRIPT,
               home+'electroncash_plugins/keepkey/qt.py',
               home+'electroncash_plugins/ledger/qt.py',
               home+'electroncash_plugins/satochip/qt.py',  # Satochip
-              home+'electroncash_plugins/fusion/fusion.py', # CashFusion
-              home+'electroncash_plugins/fusion/qt.py', # CashFusion
               ],
              binaries=binaries,
              datas=datas,
