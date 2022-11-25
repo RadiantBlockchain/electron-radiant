@@ -2146,8 +2146,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         # openalias or cashacct and hit preview too quickly.
         self.payto_e.resolve(force_if_has_focus=True)
 
-        if not self._chk_no_segwit_suspects():
-            return
+        #if not self._chk_no_segwit_suspects():
+            #return
 
         if not self.payto_e.is_paycode:
             r = self.read_send_tab()
