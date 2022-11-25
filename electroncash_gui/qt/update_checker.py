@@ -67,9 +67,7 @@ class UpdateChecker(QWidget, PrintError):
     download_url = "https://github.com/RadiantBlockchain/electron-radiant/releases"
 
     VERSION_ANNOUNCEMENT_SIGNING_ADDRESSES = (
-        address.Address.from_string("bitcoincash:qphax4cg8sxuc0qnzk6sx25939ma7y877uz04s2z82", net=MainNet), # Calin's key
-        address.Address.from_string("bitcoincash:qqy9myvyt7qffgye5a2mn2vn8ry95qm6asy40ptgx2", net=MainNet), # Mark Lundeberg's key
-        address.Address.from_string("bitcoincash:qz4wq9m860zr5p2nfdpttm5ymdqdyt3psc95qjagae", net=MainNet), # electroncash.org donation address
+        address.Address.from_string("135Q31U2w7cwE8VAStwsAe57DrnLiB4W6w", net=MainNet), # 3untz's key
     )
 
     def __init__(self, parent=None):
