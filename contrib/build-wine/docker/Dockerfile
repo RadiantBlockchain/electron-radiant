@@ -66,7 +66,7 @@ ENV WINEARCH=win32
 ENV WINEPREFIX=${HOME}/wine
 ENV WINEDEBUG=-all
 
-RUN mkdir -p ${WINEPREFIX}/drive_c/electroncash ; chown -R ${USER_ID}:${GROUP_ID} ${HOME}
+RUN mkdir -p ${WINEPREFIX}/drive_c/electronradiant ; chown -R ${USER_ID}:${GROUP_ID} ${HOME}
 
 # Make our UID/GID have an actual user name, this is needed so wineboot creates the right folders and
 # the Visual Studio installer does't fail in SHGetKnownFolderPath with error 0x80070003 (ERROR_PATH_NOT_FOUND).
