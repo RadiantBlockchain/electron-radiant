@@ -563,7 +563,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         if is_old_bad:
             msg = ' '.join([
                 _("This testnet wallet has an invalid master key format."),
-                _("(Old versions of Electron Cash before 3.3.6 produced invalid testnet wallets)."),
+                _("(Old versions of Electron Radiant before 3.3.6 produced invalid testnet wallets)."),
                 '<br><br>',
                 _("In order to use this wallet without errors with this version of EC, please <b>re-generate this wallet from seed</b>."),
                 "<br><br><em><i>~SPV stopped~</i></em>"
@@ -799,11 +799,13 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         QMessageBox.about(self, "Electron Radiant",
             "<p><font size=+3><b>Electron Radiant</b></font></p><p>" + _("Version") + f" {self.wallet.electrum_version}" + "</p>" +
             '<span style="font-size:11pt; font-weight:500;"><p>' +
+            _("Copyright © {year_start}-{year_end} Electron Radiant and the Electron Radiant developers.").format(year_start=2022, year_end=2023) +
+            '<span style="font-size:11pt; font-weight:500;"><p>' +
             _("Copyright © {year_start}-{year_end} Electron Cash LLC and the Electron Cash developers.").format(year_start=2017, year_end=2022) +
             "</p><p>" + _("darkdetect for macOS © 2019 Alberto Sottile") + "</p>"
             "</span>" +
             '<span style="font-weight:200;"><p>' +
-            _("Electron Cash's focus is speed, with low resource usage and simplifying Bitcoin Cash. You do not need to perform regular backups, because your wallet can be recovered from a secret phrase that you can memorize or write on paper. Startup times are instant because it operates in conjunction with high-performance servers that handle the most complicated parts of the Bitcoin Cash system.") +
+            _("Electron Radiant focus is speed, with low resource usage and simplifying Radiant. You do not need to perform regular backups, because your wallet can be recovered from a secret phrase that you can memorize or write on paper. Startup times are instant because it operates in conjunction with high-performance servers that handle the most complicated parts of the Radiant system.") +
             "</p></span>"
         )
 
@@ -1536,19 +1538,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         msg = "<span style=\"font-weight:400;\">" + _('Recipient of the funds.') + " " + \
               _("You may enter:"
                 "<ul>"
-                "<li> Bitcoin Cash <b>Address</b> <b>★</b>"
-                "<li> Bitcoin Legacy <b>Address</b> <b>★</b>"
-                "<li> <b>Cash Account</b> <b>★</b> e.g. <i>satoshi#123</i>"
-                "<li> <b>LNS Name</b> <b>★</b> e.g. <i>satoshi.bch</i>"
-                "<li> <b>Contact name</b> <b>★</b> from the Contacts tab"
-                "<li> <b>OpenAlias</b> e.g. <i>satoshi@domain.com</i>"
-                "</ul><br>"
-                "&nbsp;&nbsp;&nbsp;<b>★</b> = Supports <b>pay-to-many</b>, where"
-                " you may optionally enter multiple lines of the form:"
-                "</span><br><pre>"
-                "    recipient1, amount1 \n"
-                "    recipient2, amount2 \n"
-                "    etc..."
+                "<li> Radiant <b>Address</b> <b>★</b>"
+                "<li> Radiant Multisign <b>Address</b> <b>★</b>"
                 "</pre>")
         self.payto_label = payto_label = HelpLabel(_('Pay &to'), msg)
         payto_label.setBuddy(self.payto_e)
@@ -1572,7 +1563,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         grid.addWidget(self.message_e, 2, 1, 1, -1)
 
         msg_opreturn = ( _('OP_RETURN data (optional).') + '\n\n'
-                        + _('Posts a PERMANENT note to the BCH blockchain as part of this transaction.')
+                        + _('Posts a PERMANENT note to the Radiant blockchain as part of this transaction.')
                         + '\n\n' + _('If you specify OP_RETURN text, you may leave the \'Pay to\' field blank.') )
         self.opreturn_label = HelpLabel(_('&OP_RETURN'), msg_opreturn)
         grid.addWidget(self.opreturn_label,  3, 0)
@@ -1624,7 +1615,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         hbox.addStretch(1)
         grid.addLayout(hbox, 5, 4, 1, -1)
 
-        msg = _('Bitcoin Cash transactions are in general not free. A transaction fee is paid by the sender of the funds.') + '\n\n'\
+        msg = _('Radiant transactions are in general not free. A transaction fee is paid by the sender of the funds.') + '\n\n'\
               + _('The amount of fee can be decided freely by the sender. However, transactions with low fees take more time to be processed.') + '\n\n'\
               + _('A suggested fee is automatically added to this field. You may override it. The suggested fee increases with the size of the transaction.')
         self.fee_e_label = HelpLabel(_('F&ee'), msg)
@@ -1643,7 +1634,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         self.fee_custom_lbl = HelpLabel(self.get_custom_fee_text(),
                                         _('This is the fee rate that will be used for this transaction.')
                                         + "\n\n" + _('It is calculated from the Custom Fee Rate in preferences, but can be overridden from the manual fee edit on this form (if enabled).')
-                                        + "\n\n" + _('Generally, a fee of 1.0 photons/B is a good minimal rate to ensure your transaction will make it into the next block.'))
+                                        + "\n\n" + _('Generally, a fee of 1000 photons/B is a good minimal rate to ensure your transaction will make it into the next block.'))
         self.fee_custom_lbl.setFixedWidth(140)
 
         self.fee_slider_mogrifier()
@@ -2128,7 +2119,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
                            len(segwits)).format(segwit_addresses='\n'.join(segwits))
             detail = _("Legacy '{prefix_char}...' p2sh address support in the Send tab is "
                        "restricted by default in order to prevent inadvertently "
-                       "sending BCH to Segwit BTC addresses.\n\n"
                        "If you are an expert user, go to 'Preferences -> Transactions' "
                        "to enable the use of legacy p2sh addresses in the Send tab.").format(prefix_char=prefix_char)
             self.show_error(msg, detail_text=detail)
@@ -3243,14 +3233,14 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         try:
             addr = Address.from_string(address)
         except:
-            self.show_message(_('Invalid Bitcoin Cash address.'))
+            self.show_message(_('Invalid Radiant address.'))
             return
         if addr.kind != addr.ADDR_P2PKH:
             msg_sign = ( _("Signing with an address actually means signing with the corresponding "
                            "private key, and verifying with the corresponding public key. The "
                            "address you have entered does not have a unique public key, so these "
                            "operations cannot be performed.") + '\n\n' +
-                         _('The operation is undefined. Not just in Electron Cash, but in general.') )
+                         _('The operation is undefined. Not just in Electron Radiant, but in general.') )
             self.show_message(_('Cannot sign messages with this type of address.') + '\n\n' + msg_sign)
             return
         if self.wallet.is_watching_only():
@@ -4236,9 +4226,9 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         misc_widgets.append((cr_gb, None))  # commit crash reporter gb to layout
 
 
-        units = util.base_unit_labels  # ( 'BCH', 'mBCH', 'bits' )
+        units = util.base_unit_labels  # ( 'RXD', 'mRXD', 'bits' )
         msg = _('Base unit of your wallet.')\
-              + '\n1 BCH = 1,000 mBCH = 1,000,000 bits.\n' \
+              + '\n1 RXD = 1,000 mRXD = 1,000,000 bits.\n' \
               + _(' These settings affects the fields in the Send tab')+' '
         unit_label = HelpLabel(_('Base unit') + ':', msg)
         unit_combo = QComboBox()
