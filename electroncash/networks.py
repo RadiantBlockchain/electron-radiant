@@ -114,8 +114,8 @@ class TestNet(AbstractNet):
     BITCOIN_CASH_FORK_BLOCK_HASH = "00000000000e38fef93ed9582a7df43815d5c2ba9fd37ef70c9a0ea4a285b8f5"
 
     VERIFICATION_BLOCK_MERKLE_ROOT = "7551842b70e20582390f5693ffce71df5509f5a3f6e32ac0f91123231dbcf97a"
-    VERIFICATION_BLOCK_HEIGHT = 1476226
-    asert_daa = ASERTDaa(is_testnet=True)
+    VERIFICATION_BLOCK_HEIGHT = 18144
+    asert_daa = ASERTDaa(is_testnet=False)
     asert_daa.anchor = Anchor(height=1421481, bits=486604799, prev_time=1605445400)
 
     # Version numbers for BIP32 extended keys
