@@ -4129,7 +4129,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         customfee_e = BTCSatsByteEdit()
         customfee_e.setAmount(self.config.custom_fee_rate() / 1000.0 if self.config.has_custom_fee_rate() else None)
         customfee_e.textChanged.connect(on_customfee)
-        customfee_label = HelpLabel(_('Custom fee rate:'), _('Custom Fee Rate in Satoshis per byte'))
+        customfee_label = HelpLabel(_('Custom fee rate:'), _('Custom Fee Rate in photons per byte'))
         fee_lo.addWidget(customfee_label, 0, 0, 1, 1, Qt.AlignRight)
         fee_lo.addWidget(customfee_e, 0, 1, 1, 1, Qt.AlignLeft)
 
