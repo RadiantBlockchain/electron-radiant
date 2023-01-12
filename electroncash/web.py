@@ -44,12 +44,18 @@ mainnet_block_explorers = {
     'radiantblockchain.org': ('https://explorer.radiantblockchain.org',
                               Address.FMT_LEGACY,
                               {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantexplorer.com': ('https://radiantexplorer.com',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
 
 DEFAULT_EXPLORER_TESTNET = 'radiantblockchain.org'
 
 testnet_block_explorers = {
     'radiantblockchain.org': ('https://explorer-testnet.radiantblockchain.org',
+                              Address.FMT_LEGACY,
+                              {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
+    'radiantexplorer.com': ('https://testnet.radiantexplorer.com',
                               Address.FMT_LEGACY,
                               {'tx': 'tx', 'addr': 'address', 'block': 'block-height'}),
 }
