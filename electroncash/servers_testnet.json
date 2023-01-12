@@ -1,6 +1,7 @@
-
+{
     "electrumx-testnet.radiant4people.com": {
         "s": "51002",
         "t": "51001",
         "display": "electrumx-testnet.radiant4people.com"
+        }
 }
