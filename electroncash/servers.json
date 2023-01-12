@@ -31,6 +31,7 @@
     "electrumx.radiant4people.com": {
         "pruning": "-",
         "s": "50012",
+        "t": "50010",
         "version": "1.4"
     }
 }
