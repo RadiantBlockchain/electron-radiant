@@ -798,9 +798,9 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
     def show_about(self):
         QMessageBox.about(self, "Electron Radiant",
             "<p><font size=+3><b>Electron Radiant</b></font></p><p>" + _("Version") + f" {self.wallet.electrum_version}" + "</p>" +
-            '<span style="font-size:11pt; font-weight:500;"><p>' +
+            '<span style="font-size:10pt; font-weight:500;"><p>' +
             _("Copyright © {year_start}-{year_end} Electron Radiant and the Electron Radiant developers.").format(year_start=2022, year_end=2023) +
-            '<span style="font-size:11pt; font-weight:500;"><p>' +
+            '<span style="font-size:10pt; font-weight:500;"><p>' +
             _("Copyright © {year_start}-{year_end} Electron Cash LLC and the Electron Cash developers.").format(year_start=2017, year_end=2022) +
             "</p><p>" + _("darkdetect for macOS © 2019 Alberto Sottile") + "</p>"
             "</span>" +
