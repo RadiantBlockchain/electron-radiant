@@ -115,8 +115,8 @@ class TestNet(AbstractNet):
 
     VERIFICATION_BLOCK_MERKLE_ROOT = "7551842b70e20582390f5693ffce71df5509f5a3f6e32ac0f91123231dbcf97a"
     VERIFICATION_BLOCK_HEIGHT = 18144
-    asert_daa = ASERTDaa(is_testnet=False)
-    asert_daa.anchor = Anchor(height=1421481, bits=486604799, prev_time=1605445400)
+    asert_daa = ASERTDaa(is_testnet=True)
+    asert_daa.anchor = Anchor(height=18206, bits=453224288, prev_time=1657404650)
 
     # Version numbers for BIP32 extended keys
     # standard: tprv, tpub
