@@ -99,17 +99,24 @@ class TestNet(AbstractNet):
     CASHADDR_PREFIX = "bchtest"
     RPA_PREFIX = "paycodetest"
     HEADERS_URL = "http://bitcoincash.com/files/testnet_headers"  # Unused
-    GENESIS = "000000002008a2f4a76b850a838ae084994c200dc2fd354f73102298fe063a91"
+    GENESIS = "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"
     DEFAULT_PORTS = {'t':'51001', 's':'51002'}
     DEFAULT_SERVERS = _read_json_dict('servers_testnet.json')  # DO NOT MODIFY IN CLIENT CODE
     TITLE = 'Electron Radiant Testnet'
     BASE_UNITS = {'tRXD': 8, 'mtRXD': 5, 'tbits': 2}
     DEFAULT_UNIT = "tRXD"
 
+    # Nov 13. 2017 HF to CW144 DAA height (height of last block mined on old DAA)
+    CW144_HEIGHT = 1188697
+
+    # Bitcoin Cash fork block specification
+    BITCOIN_CASH_FORK_BLOCK_HEIGHT = 1155876
+    BITCOIN_CASH_FORK_BLOCK_HASH = "00000000000e38fef93ed9582a7df43815d5c2ba9fd37ef70c9a0ea4a285b8f5"
+
     VERIFICATION_BLOCK_MERKLE_ROOT = "7551842b70e20582390f5693ffce71df5509f5a3f6e32ac0f91123231dbcf97a"
-    VERIFICATION_BLOCK_HEIGHT = 0
+    VERIFICATION_BLOCK_HEIGHT = 1476226
     asert_daa = ASERTDaa(is_testnet=True)
-    asert_daa.anchor = Anchor(height=18206, bits=453224288, prev_time=1657404650)
+    asert_daa.anchor = Anchor(height=1421481, bits=486604799, prev_time=1605445400)
 
     # Version numbers for BIP32 extended keys
     # standard: tprv, tpub
