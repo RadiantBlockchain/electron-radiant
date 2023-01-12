@@ -20,6 +20,7 @@
     "electrumx.radiant.ovh": {
         "pruning": "-",
         "s": "50012",
+        "t": "50010",
         "version": "1.4"
     },
     "electrumx.radiantblockchain.org": {
