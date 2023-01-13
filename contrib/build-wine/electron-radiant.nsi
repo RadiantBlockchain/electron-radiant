@@ -241,7 +241,7 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\*.*"
   RMDir  "$SMPROGRAMS\${PRODUCT_NAME}"
 
-  DeleteRegKey ${INSTDIR_REG_ROOT} "Software\Classes\bitcoinradiant"
+  DeleteRegKey ${INSTDIR_REG_ROOT} "Software\Classes\radiant"
   DeleteRegKey ${INSTDIR_REG_ROOT} "Software\Classes\rxd"
   DeleteRegKey ${INSTDIR_REG_ROOT} "Software\${PRODUCT_NAME}"
   DeleteRegKey ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}"
