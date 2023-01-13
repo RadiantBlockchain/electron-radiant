@@ -11,15 +11,10 @@
         "t": "50010",
         "version": "1.4"
     },
-    "radpool.net": {
-        "pruning": "-",
-        "s": "50012",
-        "t": "50010",
-        "version": "1.4"
-    },
     "electrumx.radiant.ovh": {
         "pruning": "-",
         "s": "50012",
+        "t": "50010",
         "version": "1.4"
     },
     "electrumx.radiantblockchain.org": {
@@ -31,6 +26,7 @@
     "electrumx.radiant4people.com": {
         "pruning": "-",
         "s": "50012",
+        "t": "50010",
         "version": "1.4"
     }
 }

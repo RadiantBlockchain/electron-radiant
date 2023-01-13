@@ -113,10 +113,10 @@ class TestNet(AbstractNet):
     BITCOIN_CASH_FORK_BLOCK_HEIGHT = 1155876
     BITCOIN_CASH_FORK_BLOCK_HASH = "00000000000e38fef93ed9582a7df43815d5c2ba9fd37ef70c9a0ea4a285b8f5"
 
-    VERIFICATION_BLOCK_MERKLE_ROOT = "7551842b70e20582390f5693ffce71df5509f5a3f6e32ac0f91123231dbcf97a"
-    VERIFICATION_BLOCK_HEIGHT = 1476226
+    VERIFICATION_BLOCK_MERKLE_ROOT = "b09cbd1d549118c26c8be8734beba50714847b29f78f29f4c03393ffb62e6c2a"
+    VERIFICATION_BLOCK_HEIGHT = 32000
     asert_daa = ASERTDaa(is_testnet=True)
-    asert_daa.anchor = Anchor(height=1421481, bits=486604799, prev_time=1605445400)
+    asert_daa.anchor = Anchor(height=33000, bits=453224288, prev_time=1657404650)
 
     # Version numbers for BIP32 extended keys
     # standard: tprv, tpub
@@ -147,7 +147,7 @@ class TestNet4(TestNet):
     VERIFICATION_BLOCK_MERKLE_ROOT = "e4cd956daecf2a1d2894954bb479f09e6d2d488e470ed59e1af6a329170597d6"
     VERIFICATION_BLOCK_HEIGHT = 68611
     asert_daa = ASERTDaa(is_testnet=True)  # Redeclare to get instance for this subclass
-    asert_daa.anchor = Anchor(height=16844, bits=486604799, prev_time=1605451779)
+    asert_daa.anchor = Anchor(height=16844, bits=453224288, prev_time=1657404650)
 
 
 class ScaleNet(TestNet):
