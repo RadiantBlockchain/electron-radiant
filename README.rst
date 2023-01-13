@@ -11,14 +11,17 @@ Forked from Electron Cash.
   Language: Python
   Homepage: https://electroncash.org/
 
-Server List
+Server Mainnet List
 ===============
 
 - electrumx.radiantexplorer.com (50012 and 50010)
 - electrumx2.radiantexplorer.com (50012 and 50010)
-- electrumx.rxdpool.com (50012 and 50010)
 - electrumx.radiantblockchain.org (50012 and 50010)
-- electrumx.radiant4people.com (50012)
+- electrumx.radiant4people.com (50012 and 50010)
+
+Server Testnet List 
+===============
+- electrumx-testnet.radiant4people.com (51012 and 51010)
 
 
 Getting started
