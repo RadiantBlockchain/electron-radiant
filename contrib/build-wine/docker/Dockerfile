@@ -46,7 +46,7 @@ ENV WINEVERSION=7.7~${UBUNTUDIST}-1
 
 RUN mkdir -pm755 /etc/apt/keyrings && \
     wget https://dl.winehq.org/wine-builds/winehq.key -O "/etc/apt/keyrings/winehq-archive.key" && \
-    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/winehq-bionic.sources && \
+    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources && \
     apt-get update  && apt-get install -y winehq-devel winbind xvfb cabextract
 
 ####################################################
