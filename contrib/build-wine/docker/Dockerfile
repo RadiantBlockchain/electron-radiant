@@ -21,7 +21,7 @@ RUN echo deb ${UBUNTU_MIRROR} ${UBUNTUDIST} main restricted universe multiverse 
         gnupg2=2.2.27-3ubuntu2.1 \
         ca-certificates=20211016 \
         wget=1.21.2-2ubuntu1 \
-        git=1:2.34.1-1ubuntu1.5 \
+        git=1:2.34.1-1ubuntu1.6 \
         p7zip-full=16.02+dfsg-8 \
         make=4.3-4.1build1 \
         autotools-dev=20220109.1 \
